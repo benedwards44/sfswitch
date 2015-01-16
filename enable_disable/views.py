@@ -101,7 +101,7 @@ def oauth_response(request):
 					login_url = 'https://test.salesforce.com'
 
 				r = requests.post(login_url + '/services/oauth2/revoke', headers={'content-type':'application/x-www-form-urlencoded'}, data={'token': access_token})
-				return HttpResponseRedirect('/logout?environment=' + environment)
+				return HttpResponseRedirect('/logout?instance_url=' + instance_url)
 
 			if 'get_metadata' in request.POST:
 
@@ -126,14 +126,9 @@ def oauth_response(request):
 def logout(request):
 
 	# Determine logout url based on environment
-	environment = request.GET.get('environment')
-
-	if 'Production' in environment:
-		logout_url = 'https://login.salesforce.com'
-	else:
-		logout_url = 'https://test.salesforce.com'
+	instance_url = request.GET.get('instance_url')
 		
-	return render_to_response('logout.html', RequestContext(request, {'logout_url': logout_url}))
+	return render_to_response('logout.html', RequestContext(request, {'instance_url': instance_url}))
 
 # AJAX endpoint for page to constantly check if job is finished
 def job_status(request, job_id):
