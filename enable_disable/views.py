@@ -126,9 +126,9 @@ def oauth_response(request):
 def logout(request):
 
 	# Determine logout url based on environment
-	instance_url = request.GET.get('instance_url')
+	instance_prefix = request.GET.get('instance_url').replace('https://','').replace('.salesforce.com')
 		
-	return render_to_response('logout.html', RequestContext(request, {'instance_url': instance_url}))
+	return render_to_response('logout.html', RequestContext(request, {'instance_prefix': instance_prefix}))
 
 # AJAX endpoint for page to constantly check if job is finished
 def job_status(request, job_id):
