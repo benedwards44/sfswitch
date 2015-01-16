@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+	<div class="inner">
+
+		<h1>Salesforce Off & On</h1>
+		<p>
+			This tool provides an interface to easily enable and disable components in your Salesforce Org - Workflows, Triggers and Validation Rules. Very useful when doing data migrations and needing to disable certain automation.
+		</p>
+		<p>
+			None of your organisation information or data is captured or kept from running this tool.
+		</p>
+					
+		<table id="login_table">
+
+			<form action="." method="POST" id="loginForm"> 
+
+				{% csrf_token %}
+
+				<table class="login_table">
+
+					{% if messages %}
+
+						<tr>
+							<td colspan="2" style="color:#ff6600;font-weight:bold;">
+							    {% for message in messages %}
+							    	{{ message }}<br/>
+							    {% endfor %}
+							    <br/>
+							</td>
+						</tr>
+						
+					{% endif %}
+
+					{% if not error %}
+
+						<h2>Logged in as:</h2>
+
+						<tr>
+							<td width="150">
+								<strong>Username:</strong>
+							</td>
+							<td>
+								{{ username }}
+							</td>
+						</tr>
+
+						<tr>
+							<td width="150">
+								<strong>Organisation:</strong>
+							</td>
+							<td>
+								{{ org_name }}
+							</td>
+						</tr>
+
+						<tr height="30">
+							<td colspan="2"></td>
+						</tr>
+
+						<tr>
+							<td colspan="2" style="text-align:center;height:50px;">
+								<input type="submit" name="logout" value="Logout" onclick="showLogout();" oncomplete="hideLogout();" />
+								<input type="submit" name="get_metadata" value="Get Metadata" onclick="hideTable();" oncomplete="showTable();" />
+							</td>
+						</tr>
+
+					{% else %}
+
+					<tr>
+						<td colspan="2">
+							<div class="alert alert-danger" role="alert">
+								<p>
+									<strong>Error:</strong>  {{ error_message }}
+								</p>
+								<p>	
+									Please go <a href="/">back</a> and try again.
+								</p>
+							</div>
+						</td>
+					</tr>
+
+					{% endif %}
+
+				</table>
+
+				<div class="loading">
+
+					<div style="float:left;">
+						<img src="{{ STATIC_URL }}images/loading.gif" alt="Loading" title="Loading" />
+					</div>
+
+					<div style="float:left;margin-left:20px;">
+						<h1 style="font-size:1.5em;margin-top:20px;">Querying metadata</h1>
+						<p>Building a list of validation rules, workflows and triggers...</p>
+					</div>
+					
+				</div>
+
+				<div class="logging_out">
+
+					<div style="float:left;">
+						<img src="{{ STATIC_URL }}images/loading.gif" alt="Loading" title="Loading" />
+					</div>
+
+					<div style="float:left;margin-left:20px;">
+						<h1 style="font-size:1.5em;margin-top:20px;">Logging out...</h1>
+						<p>Revoking OAuth token.</p>
+					</div>
+
+				</div>
+
+				<div style="display:none;">
+					{{ login_form.as_p }}
+				</div>
+
+			</form>
+
+		</table>
+
+	</div>
+
+{% endblock %}

@@ -1,0 +1,441 @@
+{% extends 'base.html' %}
+
+{% block scripts %}
+	
+	<script type="text/javascript" src="/static/js/jquery-migrate-1.1.0.min.js"></script>
+	<script type="text/javascript" src="/static/jquery-syntaxhighlighter/jquery.syntaxhighlighter.min.js"></script>
+	<script type="text/javascript" src="/static/js/metadata_update.js"></script>
+	<script type="text/javascript" src="/static/js/cookie.js"></script>
+
+	<script>
+		function update_metadata(components_to_update, metadata_type)
+		{
+			if (components_to_update.length == 0)
+			{
+				updateModal('No Changes Detected',
+							'<div class="alert alert-danger" role="alert">The app wasn\'t able to detect any changes to deploy. Please make some changes and try again.</div>',
+							true);
+
+				$('#progressModal').modal();
+			}
+			else
+			{
+				updateModal('Processing',
+							'<div>Deploying changes. Time will vary depending on number and type of components.</div><div class="progress"><div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div></div>',
+							false);
+
+				$('#progressModal').modal();
+
+				$.ajax(
+				{
+					url: '/update_metadata/{{ job.random_id }}/' + metadata_type + '/',
+					type: 'POST',
+					headers: {'X-CSRFToken': getCookie('csrftoken')},
+					data: {'components': JSON.stringify(components_to_update)},
+					success: function(resp) 
+				    {
+				    	check_status(resp);
+				    },
+				    failure: function(resp) 
+				    { 
+				    	updateModal('Error',
+							'<div class="alert alert-danger" role="alert">There was an error deploying your components: ' + resp + '</div>',
+							true);
+				    }
+				});
+			}
+		}
+	</script>
+
+{% endblock %}
+
+{% block content %}
+
+	<div class="inner">
+
+		<h1>Salesforce Off & On</h1>
+
+		<div class="alert alert-info alert-dismissible" role="alert" >
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			Use the Off/On switches and the Enable All/Disable All buttons to specify what you want to activate and deactivate for your Org. Once ready, click Deploy to apply the changes to your Org. Deployment times will vary depending on the number of changes you are making. Triggers tend to take longer than Validation Rules and Workflows (especially for Production Orgs, as all Apex Tests must run on deployment).
+			<br/><br/>
+			You can click on the component names to have a look at what the components are made up of.
+		</div>
+
+		<h4>{{ job.username }} ({{ job.org_name }})</h4>
+
+		<hr />
+
+		<div role="tabpanel">
+
+			<ul class="nav nav-tabs" role="tablist">
+
+	    		<li role="presentation" class="active">
+	    			<a href="#valrules" aria-controls="valrules" role="tab" data-toggle="tab">
+	    				Validation Rules
+	    			</a>
+	    		</li>
+
+	    		<li role="presentation">
+	    			<a href="#workflows" aria-controls="workflows" role="tab" data-toggle="tab">
+	    				Workflows
+	    			</a>
+	    		</li>
+
+	    		<li role="presentation">
+	    			<a href="#triggers" aria-controls="triggers" role="tab" data-toggle="tab">
+	    				Triggers
+	    			</a>
+	    		</li>
+
+  			</ul>
+
+  			<div class="tab-content">
+
+  				<div role="tabpanel" class="tab-pane active" id="valrules">
+
+  					{% if not val_object_names %}
+
+  						<div class="alert alert-warning" role="alert">
+  							There don't appear to be any validation rules for your Org.
+  						</div>
+
+  					{% else %}
+
+  						<button type="button" id="submit__validation_rule" class="btn btn-info btn-sm text-center submit">
+							Deploy Changes
+						</button>
+
+						<hr style="margin-top:10px;margin-bottom:10px;"/>
+  					
+	  					{% for obj_name in val_object_names %}
+
+	  						<table class="table table-hover">
+
+	  							<thead>
+
+	  								<tr>
+	  									<th width="80%">
+	  										{{ obj_name }}
+	  									</th>
+	  									<th width="10%">
+	  										<button type="button" class="btn btn-success btn-xs enable">
+	  											Enable All
+	  										</button>
+	  										
+	  									</th>
+	  									<th width="10%">
+	  										<button type="button" class="btn btn-danger btn-xs disable">
+	  											Disable All
+	  										</button>
+	  									</th>
+	  								</tr>
+
+	  							</thead>
+
+	  							<tbody>
+
+	  								{% for val_rule in val_rules %}
+
+										{% if obj_name == val_rule.object_name %}
+
+											<tr>
+
+												<td colspan="2" width="90%" class="component">
+
+													{{ val_rule.name }}
+
+													<div id="{{ obj_name }} - {{ val_rule.name }}" style="display:none">
+														<table class="table">
+															<tbody>
+																<tr>
+																	<th>Description</th>
+																	<td>
+																		{% if val_rule.description %}
+																			{{ val_rule.description|linebreaks }}
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Error Condition Formula</th>
+																	<td>{{ val_rule.errorConditionFormula }}</td>
+																</tr>
+																<tr>
+																	<th>Error Display Field</th>
+																	<td>
+																		{% if val_rule.errorDisplayField %}
+																			{{ val_rule.errorDisplayField }}
+																		{% else %}
+																			Top of Page
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Error Message</th>
+																	<td>{{ val_rule.errorMessage }}</td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</td>
+												<td width="10%" id="{{ val_rule.id }}" class="validation_rule">
+													<input type="checkbox" {% if val_rule.active %}checked="checked"{% endif %} data-off-color="warning" data-size="mini" class="new_value" />
+													<input type="hidden" class="old_value" value="{{ val_rule.active }}" />
+												</td>
+											</tr>
+
+										{% endif %}
+
+									{% endfor %}
+
+	  							</tbody>
+
+	  						</table>
+
+	  					{% endfor %}
+
+	  				{% endif %}
+
+  				</div>
+
+  				<div role="tabpanel" class="tab-pane" id="workflows">
+
+  					{% if not wf_object_names %}
+
+  						<div class="alert alert-warning" role="alert">
+  							There don't appear to be any workflow rules for your Org.
+  						</div>
+
+  					{% else %}
+
+  						<button type="button" id="submit__workflow_rule" class="btn btn-info btn-sm text-center submit">
+							Deploy Changes
+						</button>
+
+						<hr style="margin-top:10px;margin-bottom:10px;"/>
+  					
+	  					{% for obj_name in wf_object_names %}
+
+	  						<table class="table table-hover">
+
+	  							<thead>
+
+	  								<tr>
+	  									<th width="80%">
+	  										{{ obj_name }}
+	  									</th>
+	  									<th width="10%">
+	  										<button type="button" class="btn btn-success btn-xs enable">
+	  											Enable All
+	  										</button>
+	  										
+	  									</th>
+	  									<th width="10%">
+	  										<button type="button" class="btn btn-danger btn-xs disable">
+	  											Disable All
+	  										</button>
+	  									</th>
+	  								</tr>
+
+	  							</thead>
+
+	  							<tbody>
+
+	  								{% for workflow_rule in wf_rules %}
+
+										{% if obj_name == workflow_rule.object_name %}
+
+											<tr>
+												<td colspan="2" width="90%" class="component">
+
+													{{ workflow_rule.name }}
+
+													<div id="{{ obj_name }} - {{ workflow_rule.name }}" style="display:none">
+														<table class="table">
+															<tbody>
+																<tr>
+																	<th>Description</th>
+																	<td>
+																		{% if workflow_rule.description %}
+																			{{ workflow_rule.description|linebreaks }}
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Actions</th>
+																	<td>
+																		{% if workflow_rule.actions %}
+																			{{ workflow_rule.actions|linebreaks }}
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Boolean Filter</th>
+																	<td>
+																		{% if workflow_rule.booleanFilter %}
+																			{{ workflow_rule.booleanFilter }}
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Criteria Items</th>
+																	<td>
+																		{% if workflow_rule.criteriaItems %}
+																			{{ workflow_rule.criteriaItems|linebreaks }}
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Formula</th>
+																	<td>
+																		{% if workflow_rule.formula %}
+																			{{ workflow_rule.formula }}
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Time Triggers</th>
+																	<td>
+																		{% if workflow_rule.workflowTimeTriggers %}
+																			{{ workflow_rule.workflowTimeTriggers|linebreaks }}
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Trigger Type</th>
+																	<td>{{ workflow_rule.triggerType }}</td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</td>
+												<td width="10%" id="{{ workflow_rule.id }}" class="workflow_rule">
+													<input type="checkbox" {% if workflow_rule.active %}checked="checked"{% endif %} data-off-color="warning" data-size="mini" class="new_value" />
+													<input type="hidden" class="old_value" value="{{ workflow_rule.active }}" />
+												</td>
+											</tr>
+
+										{% endif %}
+
+									{% endfor %}
+
+	  							</tbody>
+
+	  						</table>
+
+	  					{% endfor %}
+
+	  				{% endif %}
+
+  				</div>
+
+  				<div role="tabpanel" class="tab-pane" id="triggers">
+
+  					{% if not triggers %}
+
+  						<div class="alert alert-warning" role="alert">
+  							There don't appear to be any triggers for your Org.
+  						</div>
+
+  					{% else %}
+
+  						<div class="alert alert-info alert-dismissible" role="alert" style="margin: 5px 0 0 0;">
+  							<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							If you are connecting to a Production Org, all your Apex Tests are run for each change submission you make, so will take substantially more time than Validation Rules and Workflows. Any test failures will cause all triggers as unable to disable until test failures are fixed.
+  						</div>
+
+  						<button type="button" id="submit__trigger" class="btn btn-info btn-sm text-center submit">
+							Deploy Changes
+						</button>
+
+						<hr style="margin-top:10px;margin-bottom:10px;"/>
+  					
+	  					<table class="table table-hover">
+
+	  						<thead>
+
+								<tr>
+									<th width="80%"></th>
+										
+									<th width="10%">
+										<button type="button" class="btn btn-success btn-xs enable">
+											Enable All
+										</button>
+									</th>
+
+									<th width="10%">
+										<button type="button" class="btn btn-danger btn-xs disable">
+											Disable All
+										</button>
+									</th>
+
+								</tr>
+
+							</thead>
+
+							<tbody>
+
+								{% for trigger in triggers %}
+
+									<tr>
+
+										<td colspan="2" width="90%" class="component trigger_click">
+											{{ trigger.name }}
+											<textarea id="{{ trigger.name }}" class="content" style="display:none">{{ trigger.content }}</textarea>
+											<textarea class="meta_content" style="display:none">{{ trigger.meta_content }}</textarea>
+										</td>
+
+										<td width="10%" id="{{ trigger.id }}" class="trigger">
+											<input type="checkbox" {% if trigger.active %}checked="checked"{% endif %} data-off-color="warning" data-size="mini" class="new_value" />
+											<input type="hidden" class="old_value" value="{{ trigger.active }}" />
+										</td>
+
+									</tr>
+
+								{% endfor %}
+
+							</tbody>
+
+	  					</table>
+
+	  				{% endif %}
+  					
+  				</div>
+
+  			</div>
+
+  		</div>
+
+	</div>
+
+	<div class="modal fade" id="viewMetadataModal" tabindex="-1" role="dialog" aria-labelledby="viewMetadataLabel" aria-hidden="true">
+		<div class="modal-dialog">
+	    	<div class="modal-content">
+	      		<div class="modal-header">
+	        		<button type="button" class="close" data-dismiss="modal">
+	        			<span aria-hidden="true">&times;</span>
+	        			<span class="sr-only">Close</span>
+	        		</button>
+	        		<h4 class="modal-title" id="viewMetadataLabel"></h4>
+	      		</div>
+	      		<div class="modal-body">
+	      			<div id="viewMetadataBody"></div>
+	      		</div>
+	      		<div class="modal-footer">
+			        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			    </div>
+	    	</div>
+	  	</div>
+	</div>
+
+	<div class="modal fade" id="progressModal" tabindex="-1" role="dialog" aria-labelledby="progressModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+	    	<div class="modal-content">
+	      		<div class="modal-header"></div>
+	      		<div class="modal-body"></div>
+	      		<div class="modal-footer"></div>
+	    	</div>
+	  	</div>
+	</div>
+
+{% endblock %}
