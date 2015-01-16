@@ -95,13 +95,8 @@ def oauth_response(request):
 
 			if 'logout' in request.POST:
 
-				if 'Production' in environment:
-					login_url = 'https://login.salesforce.com'
-				else:
-					login_url = 'https://test.salesforce.com'
-
 				r = requests.post(login_url + '/services/oauth2/revoke', headers={'content-type':'application/x-www-form-urlencoded'}, data={'token': access_token})
-				return HttpResponseRedirect('/logout?instance_url=' + instance_url)
+				return HttpResponseRedirect('/logout?instance_prefix=' + instance_url.replace('https://','').replace('.salesforce.com',''))
 
 			if 'get_metadata' in request.POST:
 
@@ -126,7 +121,7 @@ def oauth_response(request):
 def logout(request):
 
 	# Determine logout url based on environment
-	instance_prefix = request.GET.get('instance_url').replace('https://','').replace('.salesforce.com')
+	instance_prefix = request.GET.get('instance_prefix')
 		
 	return render_to_response('logout.html', RequestContext(request, {'instance_prefix': instance_prefix}))
 
