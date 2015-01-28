@@ -1,5 +1,5 @@
 from django.core.management.base import NoArgsCommand, CommandError, BaseCommand
-from compareorgs.models import Job
+from enable_disable.models import Job
 import datetime
 
 class Command(NoArgsCommand):

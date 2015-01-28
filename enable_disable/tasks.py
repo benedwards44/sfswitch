@@ -9,6 +9,9 @@ import os
 import glob
 import datetime
 import time
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sfswitch.settings')
 
