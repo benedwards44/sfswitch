@@ -265,9 +265,10 @@ def get_metadata(job):
 			# Delete zip file, no need to store
 			os.remove('metadata.zip')
 
-		job.status = 'Finished'
+			job.status = 'Finished'
 
 	except Exception as error:
+		
 		job.status = 'Error'
 		job.error = error
 
