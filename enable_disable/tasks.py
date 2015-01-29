@@ -211,9 +211,17 @@ def get_metadata(job):
 		if not retrieve_result.success:
 
 			job.status = 'Error'
-			job.error = retrieve_result.messages[0]
+			job.json_message = retrieve_result
+
+			if 'errorMessage' in retrieve_result:
+				job.error = retrieve_result.errorMessage
+
+			if 'messages' in retrieve_result:
+				job.error = retrieve_result.messages[0].problem
 
 		else:
+
+			job.json_message = retrieve_result
 
 			# Save the zip file result to server
 			zip_file = open('metadata.zip', 'w+')
