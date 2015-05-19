@@ -272,7 +272,7 @@ def auth_details(request):
 			job.random_id = uuid.uuid4()
 			job.created_date = datetime.datetime.now()
 			job.status = 'Not Started'
-			job.org_id = equest_data['org_id']
+			job.org_id = request_data['org_id']
 			job.instance_url = request_data['instance_url']
 			job.access_token = request_data['access_token']
 			job.save()
@@ -280,13 +280,12 @@ def auth_details(request):
 			# Attempt to get username and org name. 
 			try:
 				# get username of the authenticated user
-				r = requests.get(instance_url + '/services/data/v' + str(settings.SALESFORCE_API_VERSION) + '.0/sobjects/User/' + user_id + '?fields=Username', headers={'Authorization': 'OAuth ' + access_token})
-				query_response = json.loads(r.text)
-				job.username = query_response['Username']
-				job.save()
+				#r = requests.get(job.instance_url + '/services/data/v' + str(settings.SALESFORCE_API_VERSION) + '.0/sobjects/User/' + user_id + '?fields=Username', headers={'Authorization': 'OAuth ' + job.access_token})
+				#job.username = json.loads(r.text)['Username']
+				#job.save()
 
 				# get the org name of the authenticated user
-				r = requests.get(instance_url + '/services/data/v' + str(settings.SALESFORCE_API_VERSION) + '.0/sobjects/Organization/' + org_id + '?fields=Name', headers={'Authorization': 'OAuth ' + access_token})
+				r = requests.get(job.instance_url + '/services/data/v' + str(settings.SALESFORCE_API_VERSION) + '.0/sobjects/Organization/' + job.org_id + '?fields=Name', headers={'Authorization': 'OAuth ' + job.access_token})
 				job.org_name = json.loads(r.text)['Name']
 				job.save()
 
