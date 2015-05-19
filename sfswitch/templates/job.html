@@ -51,7 +51,7 @@
 
 {% block content %}
 
-	<div class="col-md-8 col-md-offset-2">
+	<div class="col-md-6 col-md-offset-3">
 
 		<h1>Salesforce Switch</h1>
 
@@ -62,7 +62,7 @@
 			You can click on the component names to have a look at what the components are made up of.
 		</div>
 
-		<h4>{{ job.username }} ({{ job.org_name }})</h4>
+		<h4>{% if job.username %}{{ job.username }}{% endif %} ({{ job.org_name }})</h4>
 
 		<hr />
 
