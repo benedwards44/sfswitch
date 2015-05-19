@@ -147,7 +147,15 @@ def loading(request, job_id):
 	job = get_object_or_404(Job, random_id = job_id)
 
 	if job.status == 'Finished':
-		return HttpResponseRedirect('/job/' + str(job.random_id))
+
+		# Return URL when job is finished
+		return_url = '/job/' + str(job.random_id) + '/'
+
+		# If no header is in URL, keep it there
+		if request.GET.noheader == '1':
+			return_url += '?noheader=1'
+
+		return HttpResponseRedirect(return_url)
 	else:
 		return render_to_response('loading.html', RequestContext(request, {'job': job}))	
 
