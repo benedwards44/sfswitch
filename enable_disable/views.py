@@ -298,7 +298,7 @@ def auth_details(request):
 
 			# Build response 
 			response_data = {
-				'job_url': 'https://sfswitch.herokuapp.com/loading/' + str(job.random_id) + '/',
+				'job_url': 'https://sfswitch.herokuapp.com/loading/' + str(job.random_id) + '/?noheader=1',
 				'status': 'Success',
 				'success': True
 			}

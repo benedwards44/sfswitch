@@ -2,39 +2,35 @@
 
 {% block content %}
 
-	<div class="col-md-6 col-md-offset-3">
+	<h1>Salesforce Switch</h1>
+	<p>
+		This tool provides an interface to easily enable and disable components in your Salesforce Org - Workflows, Triggers and Validation Rules. Very useful when doing data migrations and needing to disable certain automation.
+	</p>
+	<p>
+		None of your organisation information or data is captured or kept from running this tool.
+	</p>
+				
+	<div class="loading-components">
 
-		<h1>Salesforce Switch</h1>
-		<p>
-			This tool provides an interface to easily enable and disable components in your Salesforce Org - Workflows, Triggers and Validation Rules. Very useful when doing data migrations and needing to disable certain automation.
-		</p>
-		<p>
-			None of your organisation information or data is captured or kept from running this tool.
-		</p>
-					
-		<div class="loading-components">
-
-			<div style="float:left;">
-				<img src="{{ STATIC_URL }}images/loading.gif" alt="Loading" title="Loading" />
-			</div>
-
-			<div style="float:left;margin-left:20px;">
-				<h1 style="font-size:1.5em;margin-top:20px;">Querying metadata</h1>
-				<p>Building a list of validation rules, workflows and triggers...</p>
-			</div>
-
+		<div style="float:left;">
+			<img src="{{ STATIC_URL }}images/loading.gif" alt="Loading" title="Loading" />
 		</div>
 
-		<div class="error" style="display:none;">
-			<div class="alert alert-danger" role="alert">
-				<p>
-					There was an error processing your request: <i class="error_message"></i>
-					<br/><br/>
-					Please <a href="/">return</a> to the home page and try again.
-				</p>
-			</div>
+		<div style="float:left;margin-left:20px;">
+			<h1 style="font-size:1.5em;margin-top:20px;">Querying metadata</h1>
+			<p>Building a list of validation rules, workflows and triggers...</p>
 		</div>
 
+	</div>
+
+	<div class="error" style="display:none;">
+		<div class="alert alert-danger" role="alert">
+			<p>
+				There was an error processing your request: <i class="error_message"></i>
+				<br/><br/>
+				Please <a href="/">return</a> to the home page and try again.
+			</p>
+		</div>
 	</div>
 
 	<script>

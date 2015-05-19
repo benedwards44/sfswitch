@@ -2,21 +2,18 @@
 
 {% block content %}
 
-	<div class="col-md-6 col-md-offset-3">
-
-		<h1>Salesforce Switch</h1>
-		
-		<div role="alert" class="alert alert-success">
-			Successfully logged out of Salesforce and Switch
-		</div>
-
-		<iframe src="https://{{ instance_prefix }}.salesforce.com/secur/logout.jsp" width="0" height="0" style="display:none;"></iframe>
-
-		<script>
-			setTimeout(function () {
-	       		window.location.href = "/";
-	    	}, 3000);
-		</script>
-
+	<h1>Salesforce Switch</h1>
+	
+	<div role="alert" class="alert alert-success">
+		Successfully logged out of Salesforce and Switch
 	</div>
+
+	<iframe src="https://{{ instance_prefix }}.salesforce.com/secur/logout.jsp" width="0" height="0" style="display:none;"></iframe>
+
+	<script>
+		setTimeout(function () {
+       		window.location.href = "/";
+    	}, 3000);
+	</script>
+
 {% endblock %} 
