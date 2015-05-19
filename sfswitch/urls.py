@@ -13,4 +13,5 @@ urlpatterns = patterns('',
     url(r'^job/(?P<job_id>[0-9A-Za-z_\-]+)/$', 'enable_disable.views.job'),
     url(r'^update_metadata/(?P<job_id>[0-9A-Za-z_\-]+)/(?P<metadata_type>[0-9A-Za-z_\-]+)/$', 'enable_disable.views.update_metadata'),
     url(r'^check_deploy_status/(?P<deploy_job_id>\d+)/$', 'enable_disable.views.check_deploy_status'),
+    url(r'^auth_details/$', 'buildpackage.views.auth_details'),
 )

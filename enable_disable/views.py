@@ -1,6 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
 from enable_disable.models import Job, ValidationRule, WorkflowRule, ApexTrigger, DeployJob, DeployJobComponent
 from enable_disable.forms import LoginForm
 from django.conf import settings
@@ -241,4 +242,75 @@ def check_deploy_status(request, deploy_job_id):
 		'error': deploy_job.error
 	}
 
+	return HttpResponse(json.dumps(response_data), content_type = 'application/json')
+
+
+@csrf_exempt
+def auth_details(request):
+	"""
+		RESTful endpoint to pass authentication details
+	"""
+
+	try:
+
+		request_data = json.loads(request.body)
+
+		# Check for all required fields
+		if 'org_id' not in request_data or 'access_token' not in request_data or 'instance_url' not in request_data:
+
+			response_data = {
+				'status': 'Error',
+				'success':  False,
+				'error_text': 'Not all required fields were found in the message. Please ensure org_id, access_token and instance_url are all passed in the payload'
+			}
+
+		# All fields exist. Start job and send response
+		else:
+
+			# create the package record to store results
+			job = Job()
+			job.random_id = uuid.uuid4()
+			job.created_date = datetime.datetime.now()
+			job.status = 'Not Started'
+			job.org_id = equest_data['org_id']
+			job.instance_url = request_data['instance_url']
+			job.access_token = request_data['access_token']
+			job.save()
+
+			# Attempt to get username and org name. 
+			try:
+				# get username of the authenticated user
+				r = requests.get(instance_url + '/services/data/v' + str(settings.SALESFORCE_API_VERSION) + '.0/sobjects/User/' + user_id + '?fields=Username', headers={'Authorization': 'OAuth ' + access_token})
+				query_response = json.loads(r.text)
+				job.username = query_response['Username']
+				job.save()
+
+				# get the org name of the authenticated user
+				r = requests.get(instance_url + '/services/data/v' + str(settings.SALESFORCE_API_VERSION) + '.0/sobjects/Organization/' + org_id + '?fields=Name', headers={'Authorization': 'OAuth ' + access_token})
+				job.org_name = json.loads(r.text)['Name']
+				job.save()
+
+			# If there is an error, we can live with that.
+			except:
+				pass
+
+			# Run job
+			get_metadata.delay(job)
+
+			# Build response 
+			response_data = {
+				'job_url': 'https://sfswitch.herokuapp.com/loading/' + str(job.random_id) + '/',
+				'status': 'Success',
+				'success': True
+			}
+
+	except Exception as error:
+
+		# If there is an error, raise exception and return
+		response_data = {
+			'status': 'Error',
+			'success':  False,
+			'error_text': str(error)
+		}
+	
 	return HttpResponse(json.dumps(response_data), content_type = 'application/json')
