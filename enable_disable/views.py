@@ -156,7 +156,9 @@ def loading(request, job_id):
 			return_url += '?noheader=1'
 
 		return HttpResponseRedirect(return_url)
+
 	else:
+		
 		return render_to_response('loading.html', RequestContext(request, {'job': job}))	
 
 def job(request, job_id):
@@ -287,10 +289,6 @@ def auth_details(request):
 
 			# Attempt to get username and org name. 
 			try:
-				# get username of the authenticated user
-				#r = requests.get(job.instance_url + '/services/data/v' + str(settings.SALESFORCE_API_VERSION) + '.0/sobjects/User/' + user_id + '?fields=Username', headers={'Authorization': 'OAuth ' + job.access_token})
-				#job.username = json.loads(r.text)['Username']
-				#job.save()
 
 				# get the org name of the authenticated user
 				r = requests.get(job.instance_url + '/services/data/v' + str(settings.SALESFORCE_API_VERSION) + '.0/sobjects/Organization/' + job.org_id + '?fields=Name', headers={'Authorization': 'OAuth ' + job.access_token})

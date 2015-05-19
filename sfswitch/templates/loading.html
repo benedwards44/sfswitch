@@ -44,7 +44,7 @@
 			    {
 			        if (resp.status == 'Finished')
 			        {
-			        	window.location = '/job/{{ job.random_id }}/';
+			        	window.location = '/job/{{ job.random_id }}/{% if request.GET.noheader == "1" %}?noheader=1{% endif %}';
 			        } 
 			        else if (resp.status == 'Error')
 			        {
