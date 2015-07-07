@@ -60,7 +60,13 @@
 		You can click on the component names to have a look at what the components are made up of.
 	</div>
 
-	<h4>{% if job.username %}{{ job.username }}{% endif %} ({{ job.org_name }})</h4>
+	<div class="col-md-8">
+		<h4>{% if job.username %}{{ job.username }}{% endif %} ({{ job.org_name }})</h4>
+	</div>
+
+	<div class="col-md-4">
+		<a href="javascript:alert('Coming soon...');" class="btn btn-warning">Revert All</a>
+	</div>
 
 	<hr />
 
