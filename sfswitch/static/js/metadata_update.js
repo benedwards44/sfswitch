@@ -49,7 +49,7 @@ $(document).ready(function()
 		var metadata_type = $(this).attr('id').split('__')[1];
 		var componentIds = [];
 
-		$(this).parent().find('td.' + metadata_type).each(function ()
+		$(this).parent().parent().find('td.' + metadata_type).each(function ()
 		{
 			var new_value = $(this).find('.new_value').bootstrapSwitch('state');
 			var old_value = $(this).find('.old_value').val() == 'True' || $(this).find('.old_value').val() == 'true';
@@ -85,7 +85,7 @@ $(document).ready(function()
 			var metadata_type = $(this).attr('id').split('__')[1];
 			var componentIds = [];
 
-			$(this).parent().find('td.' + metadata_type).each(function ()
+			$(this).parent().parent().find('td.' + metadata_type).each(function ()
 			{
 				var new_value = $(this).find('.new_value').bootstrapSwitch('state');
 				var orig_value = $(this).find('.orig_value').val() == 'True' || $(this).find('.orig_value').val() == 'true';
