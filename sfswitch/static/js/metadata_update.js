@@ -90,7 +90,7 @@ $(document).ready(function()
 				var new_value = $(this).find('.new_value').bootstrapSwitch('state');
 				var orig_value = $(this).find('.orig_value').val() == 'True' || $(this).find('.orig_value').val() == 'true';
 
-				if (new_value != old_value)
+				if (new_value != orig_value)
 				{
 					// Push to component update array
 					var component = {
