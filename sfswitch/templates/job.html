@@ -86,133 +86,139 @@
     			</a>
     		</li>
 
-			</ul>
+		</ul>
 
-			<div class="tab-content">
+		<div class="tab-content">
 
-				<div role="tabpanel" class="tab-pane active" id="valrules">
+			<div role="tabpanel" class="tab-pane active" id="valrules">
 
-					{% if not val_object_names %}
+				{% if not val_object_names %}
 
-						<div class="alert alert-warning" role="alert">
-							There don't appear to be any validation rules for your Org.
-						</div>
+					<div class="alert alert-warning" role="alert">
+						There don't appear to be any validation rules for your Org.
+					</div>
 
-					{% else %}
+				{% else %}
 
-						<div class="col-md-12">
+					<div class="col-md-12 text-center">
 
-							<button type="button" id="rollback__validation_rule" class="btn btn-warning btn-sm text-center rollback">
-								Rollback to Original
-							</button>
-							<button type="button" id="submit__validation_rule" class="btn btn-info btn-sm text-center submit">
-								Deploy Changes
-							</button>
+						<button type="button" id="rollback__validation_rule" class="btn btn-warning btn-sm text-center rollback">
+							Rollback to Original
+						</button>
+						<button type="button" id="submit__validation_rule" class="btn btn-info btn-sm text-center submit">
+							Deploy Changes
+						</button>
 
-							<hr style="margin-top:10px;margin-bottom:10px;"/>
-					
-		  					{% for obj_name in val_object_names %}
+					</div>
 
-		  						<table class="table table-hover">
+					<div class="col-md-12">
 
-		  							<thead>
+						<hr style="margin-top:10px;margin-bottom:10px;"/>
+				
+	  					{% for obj_name in val_object_names %}
 
-		  								<tr>
-		  									<th width="80%">
-		  										{{ obj_name }}
-		  									</th>
-		  									<th width="10%">
-		  										<button type="button" class="btn btn-success btn-xs enable">
-		  											Enable All
-		  										</button>
-		  										
-		  									</th>
-		  									<th width="10%">
-		  										<button type="button" class="btn btn-danger btn-xs disable">
-		  											Disable All
-		  										</button>
-		  									</th>
-		  								</tr>
+	  						<table class="table table-hover">
 
-		  							</thead>
+	  							<thead>
 
-		  							<tbody>
+	  								<tr>
+	  									<th width="80%">
+	  										{{ obj_name }}
+	  									</th>
+	  									<th width="10%">
+	  										<button type="button" class="btn btn-success btn-xs enable">
+	  											Enable All
+	  										</button>
+	  										
+	  									</th>
+	  									<th width="10%">
+	  										<button type="button" class="btn btn-danger btn-xs disable">
+	  											Disable All
+	  										</button>
+	  									</th>
+	  								</tr>
 
-		  								{% for val_rule in val_rules %}
+	  							</thead>
 
-											{% if obj_name == val_rule.object_name %}
+	  							<tbody>
 
-												<tr>
+	  								{% for val_rule in val_rules %}
 
-													<td colspan="2" width="90%" class="component">
+										{% if obj_name == val_rule.object_name %}
 
-														{{ val_rule.name }}
+											<tr>
 
-														<div id="{{ obj_name }} - {{ val_rule.name }}" style="display:none">
-															<table class="table">
-																<tbody>
-																	<tr>
-																		<th>Description</th>
-																		<td>
-																			{% if val_rule.description %}
-																				{{ val_rule.description|linebreaks }}
-																			{% endif %}
-																		</td>
-																	</tr>
-																	<tr>
-																		<th>Error Condition Formula</th>
-																		<td>{{ val_rule.errorConditionFormula }}</td>
-																	</tr>
-																	<tr>
-																		<th>Error Display Field</th>
-																		<td>
-																			{% if val_rule.errorDisplayField %}
-																				{{ val_rule.errorDisplayField }}
-																			{% else %}
-																				Top of Page
-																			{% endif %}
-																		</td>
-																	</tr>
-																	<tr>
-																		<th>Error Message</th>
-																		<td>{{ val_rule.errorMessage }}</td>
-																	</tr>
-																</tbody>
-															</table>
-														</div>
-													</td>
-													<td width="10%" id="{{ val_rule.id }}" class="validation_rule">
-														<input type="checkbox" {% if val_rule.active %}checked="checked"{% endif %} data-off-color="warning" data-size="mini" class="new_value" />
-														<input type="hidden" class="old_value" value="{{ val_rule.active }}" />
-														<input type="hidden" class="orig_value" value="{{ val_rule.active }}" />
-													</td>
-												</tr>
+												<td colspan="2" width="90%" class="component">
 
-											{% endif %}
+													{{ val_rule.name }}
 
-										{% endfor %}
+													<div id="{{ obj_name }} - {{ val_rule.name }}" style="display:none">
+														<table class="table">
+															<tbody>
+																<tr>
+																	<th>Description</th>
+																	<td>
+																		{% if val_rule.description %}
+																			{{ val_rule.description|linebreaks }}
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Error Condition Formula</th>
+																	<td>{{ val_rule.errorConditionFormula }}</td>
+																</tr>
+																<tr>
+																	<th>Error Display Field</th>
+																	<td>
+																		{% if val_rule.errorDisplayField %}
+																			{{ val_rule.errorDisplayField }}
+																		{% else %}
+																			Top of Page
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Error Message</th>
+																	<td>{{ val_rule.errorMessage }}</td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</td>
+												<td width="10%" id="{{ val_rule.id }}" class="validation_rule">
+													<input type="checkbox" {% if val_rule.active %}checked="checked"{% endif %} data-off-color="warning" data-size="mini" class="new_value" />
+													<input type="hidden" class="old_value" value="{{ val_rule.active }}" />
+													<input type="hidden" class="orig_value" value="{{ val_rule.active }}" />
+												</td>
+											</tr>
 
-		  							</tbody>
+										{% endif %}
 
-		  						</table>
+									{% endfor %}
 
-		  					{% endfor %}
+	  							</tbody>
 
-		  				</div>
+	  						</table>
 
-					{% endif %}
+	  					{% endfor %}
 
-				</div>
+  					</div>
 
-				<div role="tabpanel" class="tab-pane" id="workflows">
+				{% endif %}
 
-					{% if not wf_object_names %}
+			</div>
 
-						<div class="alert alert-warning" role="alert">
-							There don't appear to be any workflow rules for your Org.
-						</div>
+			<div role="tabpanel" class="tab-pane" id="workflows">
 
-					{% else %}
+				{% if not wf_object_names %}
+
+					<div class="alert alert-warning" role="alert">
+						There don't appear to be any workflow rules for your Org.
+					</div>
+
+				{% else %}
+
+					<div class="col-md-12 text-center">
 
 						<button type="button" id="rollback__workflow_rule" class="btn btn-warning btn-sm text-center rollback">
 							Rollback to Original
@@ -221,133 +227,141 @@
 							Deploy Changes
 						</button>
 
-					<hr style="margin-top:10px;margin-bottom:10px;"/>
+					</div>
+
+					<div class="col-md-12">
+
+						<hr style="margin-top:10px;margin-bottom:10px;"/>
 					
-  					{% for obj_name in wf_object_names %}
+	  					{% for obj_name in wf_object_names %}
 
-  						<table class="table table-hover">
+	  						<table class="table table-hover">
 
-  							<thead>
+	  							<thead>
 
-  								<tr>
-  									<th width="80%">
-  										{{ obj_name }}
-  									</th>
-  									<th width="10%">
-  										<button type="button" class="btn btn-success btn-xs enable">
-  											Enable All
-  										</button>
-  										
-  									</th>
-  									<th width="10%">
-  										<button type="button" class="btn btn-danger btn-xs disable">
-  											Disable All
-  										</button>
-  									</th>
-  								</tr>
+	  								<tr>
+	  									<th width="80%">
+	  										{{ obj_name }}
+	  									</th>
+	  									<th width="10%">
+	  										<button type="button" class="btn btn-success btn-xs enable">
+	  											Enable All
+	  										</button>
+	  										
+	  									</th>
+	  									<th width="10%">
+	  										<button type="button" class="btn btn-danger btn-xs disable">
+	  											Disable All
+	  										</button>
+	  									</th>
+	  								</tr>
 
-  							</thead>
+	  							</thead>
 
-  							<tbody>
+	  							<tbody>
 
-  								{% for workflow_rule in wf_rules %}
+	  								{% for workflow_rule in wf_rules %}
 
-									{% if obj_name == workflow_rule.object_name %}
+										{% if obj_name == workflow_rule.object_name %}
 
-										<tr>
-											<td colspan="2" width="90%" class="component">
+											<tr>
+												<td colspan="2" width="90%" class="component">
 
-												{{ workflow_rule.name }}
+													{{ workflow_rule.name }}
 
-												<div id="{{ obj_name }} - {{ workflow_rule.name }}" style="display:none">
-													<table class="table">
-														<tbody>
-															<tr>
-																<th>Description</th>
-																<td>
-																	{% if workflow_rule.description %}
-																		{{ workflow_rule.description|linebreaks }}
-																	{% endif %}
-																</td>
-															</tr>
-															<tr>
-																<th>Actions</th>
-																<td>
-																	{% if workflow_rule.actions %}
-																		{{ workflow_rule.actions|linebreaks }}
-																	{% endif %}
-																</td>
-															</tr>
-															<tr>
-																<th>Boolean Filter</th>
-																<td>
-																	{% if workflow_rule.booleanFilter %}
-																		{{ workflow_rule.booleanFilter }}
-																	{% endif %}
-																</td>
-															</tr>
-															<tr>
-																<th>Criteria Items</th>
-																<td>
-																	{% if workflow_rule.criteriaItems %}
-																		{{ workflow_rule.criteriaItems|linebreaks }}
-																	{% endif %}
-																</td>
-															</tr>
-															<tr>
-																<th>Formula</th>
-																<td>
-																	{% if workflow_rule.formula %}
-																		{{ workflow_rule.formula }}
-																	{% endif %}
-																</td>
-															</tr>
-															<tr>
-																<th>Time Triggers</th>
-																<td>
-																	{% if workflow_rule.workflowTimeTriggers %}
-																		{{ workflow_rule.workflowTimeTriggers|linebreaks }}
-																	{% endif %}
-																</td>
-															</tr>
-															<tr>
-																<th>Trigger Type</th>
-																<td>{{ workflow_rule.triggerType }}</td>
-															</tr>
-														</tbody>
-													</table>
-												</div>
-											</td>
-											<td width="10%" id="{{ workflow_rule.id }}" class="workflow_rule">
-												<input type="checkbox" {% if workflow_rule.active %}checked="checked"{% endif %} data-off-color="warning" data-size="mini" class="new_value" />
-												<input type="hidden" class="old_value" value="{{ workflow_rule.active }}" />
-												<input type="hidden" class="orig_value" value="{{ workflow_rule.active }}" />
-											</td>
-										</tr>
+													<div id="{{ obj_name }} - {{ workflow_rule.name }}" style="display:none">
+														<table class="table">
+															<tbody>
+																<tr>
+																	<th>Description</th>
+																	<td>
+																		{% if workflow_rule.description %}
+																			{{ workflow_rule.description|linebreaks }}
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Actions</th>
+																	<td>
+																		{% if workflow_rule.actions %}
+																			{{ workflow_rule.actions|linebreaks }}
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Boolean Filter</th>
+																	<td>
+																		{% if workflow_rule.booleanFilter %}
+																			{{ workflow_rule.booleanFilter }}
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Criteria Items</th>
+																	<td>
+																		{% if workflow_rule.criteriaItems %}
+																			{{ workflow_rule.criteriaItems|linebreaks }}
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Formula</th>
+																	<td>
+																		{% if workflow_rule.formula %}
+																			{{ workflow_rule.formula }}
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Time Triggers</th>
+																	<td>
+																		{% if workflow_rule.workflowTimeTriggers %}
+																			{{ workflow_rule.workflowTimeTriggers|linebreaks }}
+																		{% endif %}
+																	</td>
+																</tr>
+																<tr>
+																	<th>Trigger Type</th>
+																	<td>{{ workflow_rule.triggerType }}</td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</td>
+												<td width="10%" id="{{ workflow_rule.id }}" class="workflow_rule">
+													<input type="checkbox" {% if workflow_rule.active %}checked="checked"{% endif %} data-off-color="warning" data-size="mini" class="new_value" />
+													<input type="hidden" class="old_value" value="{{ workflow_rule.active }}" />
+													<input type="hidden" class="orig_value" value="{{ workflow_rule.active }}" />
+												</td>
+											</tr>
 
-									{% endif %}
+										{% endif %}
 
-								{% endfor %}
+									{% endfor %}
 
-  							</tbody>
+	  							</tbody>
 
-  						</table>
+	  						</table>
 
-  					{% endfor %}
+	  					{% endfor %}
 
-  				{% endif %}
+	  				</div>
 
-				</div>
+					{% endif %}
 
-				<div role="tabpanel" class="tab-pane" id="triggers">
+			</div>
 
-					{% if not triggers %}
+			<div role="tabpanel" class="tab-pane" id="triggers">
 
-						<div class="alert alert-warning" role="alert">
-							There don't appear to be any triggers for your Org.
-						</div>
+				{% if not triggers %}
 
-					{% else %}
+					<div class="alert alert-warning" role="alert">
+						There don't appear to be any triggers for your Org.
+					</div>
+
+				{% else %}
+
+					<div class="col-md-12 text-center">
 
 						<div class="alert alert-info alert-dismissible" role="alert" style="margin: 5px 0 0 0;">
 							<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -361,59 +375,65 @@
 							Deploy Changes
 						</button>
 
-					<hr style="margin-top:10px;margin-bottom:10px;"/>
-					
-  					<table class="table table-hover">
+					</div>
 
-  						<thead>
+					<div class="col-md-12">
 
-							<tr>
-								<th width="80%"></th>
-									
-								<th width="10%">
-									<button type="button" class="btn btn-success btn-xs enable">
-										Enable All
-									</button>
-								</th>
+						<hr style="margin-top:10px;margin-bottom:10px;"/>
+						
+	  					<table class="table table-hover">
 
-								<th width="10%">
-									<button type="button" class="btn btn-danger btn-xs disable">
-										Disable All
-									</button>
-								</th>
-
-							</tr>
-
-						</thead>
-
-						<tbody>
-
-							{% for trigger in triggers %}
+	  						<thead>
 
 								<tr>
+									<th width="80%"></th>
+										
+									<th width="10%">
+										<button type="button" class="btn btn-success btn-xs enable">
+											Enable All
+										</button>
+									</th>
 
-									<td colspan="2" width="90%" class="component trigger_click">
-										{{ trigger.name }}
-										<textarea id="{{ trigger.name }}" class="content" style="display:none">{{ trigger.content }}</textarea>
-										<textarea class="meta_content" style="display:none">{{ trigger.meta_content }}</textarea>
-									</td>
-
-									<td width="10%" id="{{ trigger.id }}" class="trigger">
-										<input type="checkbox" {% if trigger.active %}checked="checked"{% endif %} data-off-color="warning" data-size="mini" class="new_value" />
-										<input type="hidden" class="old_value" value="{{ trigger.active }}" />
-										<input type="hidden" class="orig_value" value="{{ trigger.active }}" />
-									</td>
+									<th width="10%">
+										<button type="button" class="btn btn-danger btn-xs disable">
+											Disable All
+										</button>
+									</th>
 
 								</tr>
 
-							{% endfor %}
+							</thead>
 
-						</tbody>
+							<tbody>
 
-  					</table>
+								{% for trigger in triggers %}
 
-  				{% endif %}
-					
+									<tr>
+
+										<td colspan="2" width="90%" class="component trigger_click">
+											{{ trigger.name }}
+											<textarea id="{{ trigger.name }}" class="content" style="display:none">{{ trigger.content }}</textarea>
+											<textarea class="meta_content" style="display:none">{{ trigger.meta_content }}</textarea>
+										</td>
+
+										<td width="10%" id="{{ trigger.id }}" class="trigger">
+											<input type="checkbox" {% if trigger.active %}checked="checked"{% endif %} data-off-color="warning" data-size="mini" class="new_value" />
+											<input type="hidden" class="old_value" value="{{ trigger.active }}" />
+											<input type="hidden" class="orig_value" value="{{ trigger.active }}" />
+										</td>
+
+									</tr>
+
+								{% endfor %}
+
+							</tbody>
+
+	  					</table>
+
+	  				</div>
+
+					{% endif %}
+				
 			</div>
 
 		</div>
