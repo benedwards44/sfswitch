@@ -75,6 +75,17 @@ $(document).ready(function()
 
 });
 
+function rollback()
+{
+	var rollbackAll = confirm('This will rollback all metadata to it\'s original state from when the metadata was first queried.');
+
+	if (rollbackAll) 
+	{
+		alert('do rollback... Coming soon');
+	}
+
+}
+
 function updateModal(header, body, allow_close)
 {
 	if (allow_close)
