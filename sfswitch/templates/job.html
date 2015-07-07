@@ -100,103 +100,107 @@
 
 					{% else %}
 
-						<button type="button" id="rollback__validation_rule" class="btn btn-info btn-sm text-center rollback">
-							Rollback to Original
-						</button>
-						<button type="button" id="submit__validation_rule" class="btn btn-info btn-sm text-center submit">
-							Deploy Changes
-						</button>
+						<div class="col-md-12">
 
-					<hr style="margin-top:10px;margin-bottom:10px;"/>
+							<button type="button" id="rollback__validation_rule" class="btn btn-warning btn-sm text-center rollback">
+								Rollback to Original
+							</button>
+							<button type="button" id="submit__validation_rule" class="btn btn-info btn-sm text-center submit">
+								Deploy Changes
+							</button>
+
+							<hr style="margin-top:10px;margin-bottom:10px;"/>
 					
-  					{% for obj_name in val_object_names %}
+		  					{% for obj_name in val_object_names %}
 
-  						<table class="table table-hover">
+		  						<table class="table table-hover">
 
-  							<thead>
+		  							<thead>
 
-  								<tr>
-  									<th width="80%">
-  										{{ obj_name }}
-  									</th>
-  									<th width="10%">
-  										<button type="button" class="btn btn-success btn-xs enable">
-  											Enable All
-  										</button>
-  										
-  									</th>
-  									<th width="10%">
-  										<button type="button" class="btn btn-danger btn-xs disable">
-  											Disable All
-  										</button>
-  									</th>
-  								</tr>
+		  								<tr>
+		  									<th width="80%">
+		  										{{ obj_name }}
+		  									</th>
+		  									<th width="10%">
+		  										<button type="button" class="btn btn-success btn-xs enable">
+		  											Enable All
+		  										</button>
+		  										
+		  									</th>
+		  									<th width="10%">
+		  										<button type="button" class="btn btn-danger btn-xs disable">
+		  											Disable All
+		  										</button>
+		  									</th>
+		  								</tr>
 
-  							</thead>
+		  							</thead>
 
-  							<tbody>
+		  							<tbody>
 
-  								{% for val_rule in val_rules %}
+		  								{% for val_rule in val_rules %}
 
-									{% if obj_name == val_rule.object_name %}
+											{% if obj_name == val_rule.object_name %}
 
-										<tr>
+												<tr>
 
-											<td colspan="2" width="90%" class="component">
+													<td colspan="2" width="90%" class="component">
 
-												{{ val_rule.name }}
+														{{ val_rule.name }}
 
-												<div id="{{ obj_name }} - {{ val_rule.name }}" style="display:none">
-													<table class="table">
-														<tbody>
-															<tr>
-																<th>Description</th>
-																<td>
-																	{% if val_rule.description %}
-																		{{ val_rule.description|linebreaks }}
-																	{% endif %}
-																</td>
-															</tr>
-															<tr>
-																<th>Error Condition Formula</th>
-																<td>{{ val_rule.errorConditionFormula }}</td>
-															</tr>
-															<tr>
-																<th>Error Display Field</th>
-																<td>
-																	{% if val_rule.errorDisplayField %}
-																		{{ val_rule.errorDisplayField }}
-																	{% else %}
-																		Top of Page
-																	{% endif %}
-																</td>
-															</tr>
-															<tr>
-																<th>Error Message</th>
-																<td>{{ val_rule.errorMessage }}</td>
-															</tr>
-														</tbody>
-													</table>
-												</div>
-											</td>
-											<td width="10%" id="{{ val_rule.id }}" class="validation_rule">
-												<input type="checkbox" {% if val_rule.active %}checked="checked"{% endif %} data-off-color="warning" data-size="mini" class="new_value" />
-												<input type="hidden" class="old_value" value="{{ val_rule.active }}" />
-												<input type="hidden" class="orig_value" value="{{ val_rule.active }}" />
-											</td>
-										</tr>
+														<div id="{{ obj_name }} - {{ val_rule.name }}" style="display:none">
+															<table class="table">
+																<tbody>
+																	<tr>
+																		<th>Description</th>
+																		<td>
+																			{% if val_rule.description %}
+																				{{ val_rule.description|linebreaks }}
+																			{% endif %}
+																		</td>
+																	</tr>
+																	<tr>
+																		<th>Error Condition Formula</th>
+																		<td>{{ val_rule.errorConditionFormula }}</td>
+																	</tr>
+																	<tr>
+																		<th>Error Display Field</th>
+																		<td>
+																			{% if val_rule.errorDisplayField %}
+																				{{ val_rule.errorDisplayField }}
+																			{% else %}
+																				Top of Page
+																			{% endif %}
+																		</td>
+																	</tr>
+																	<tr>
+																		<th>Error Message</th>
+																		<td>{{ val_rule.errorMessage }}</td>
+																	</tr>
+																</tbody>
+															</table>
+														</div>
+													</td>
+													<td width="10%" id="{{ val_rule.id }}" class="validation_rule">
+														<input type="checkbox" {% if val_rule.active %}checked="checked"{% endif %} data-off-color="warning" data-size="mini" class="new_value" />
+														<input type="hidden" class="old_value" value="{{ val_rule.active }}" />
+														<input type="hidden" class="orig_value" value="{{ val_rule.active }}" />
+													</td>
+												</tr>
 
-									{% endif %}
+											{% endif %}
 
-								{% endfor %}
+										{% endfor %}
 
-  							</tbody>
+		  							</tbody>
 
-  						</table>
+		  						</table>
 
-  					{% endfor %}
+		  					{% endfor %}
 
-  				{% endif %}
+		  				</div>
+
+					{% endif %}
 
 				</div>
 
@@ -210,7 +214,7 @@
 
 					{% else %}
 
-						<button type="button" id="rollback__workflow_rule" class="btn btn-info btn-sm text-center rollback">
+						<button type="button" id="rollback__workflow_rule" class="btn btn-warning btn-sm text-center rollback">
 							Rollback to Original
 						</button>
 						<button type="button" id="submit__workflow_rule" class="btn btn-info btn-sm text-center submit">
@@ -350,7 +354,7 @@
 						If you are connecting to a Production Org, all your Apex Tests are run for each change submission you make, so will take substantially more time than Validation Rules and Workflows. Any test failures will cause all triggers as unable to disable until test failures are fixed.
 						</div>
 
-						<button type="button" id="rollback__trigger" class="btn btn-info btn-sm text-center rollback">
+						<button type="button" id="rollback__trigger" class="btn btn-warning btn-sm text-center rollback">
 							Rollback to Original
 						</button>
 						<button type="button" id="submit__trigger" class="btn btn-info btn-sm text-center submit">
