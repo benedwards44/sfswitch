@@ -26,290 +26,290 @@ def get_metadata(job):
 	job.status = 'Downloading Metadata'
 	job.save()
 
-	#try:
+	try:
 
-	# instantiate the metadata WSDL
-	metadata_client = Client('http://sfswitch.herokuapp.com/static/metadata-34.xml')
+		# instantiate the metadata WSDL
+		metadata_client = Client('http://sfswitch.herokuapp.com/static/metadata-34.xml')
 
-	# URL for metadata API
-	metadata_url = job.instance_url + '/services/Soap/m/' + str(settings.SALESFORCE_API_VERSION) + '.0/' + job.org_id
+		# URL for metadata API
+		metadata_url = job.instance_url + '/services/Soap/m/' + str(settings.SALESFORCE_API_VERSION) + '.0/' + job.org_id
 
-	# set the metadata url based on the login result
-	metadata_client.set_options(location = metadata_url)
+		# set the metadata url based on the login result
+		metadata_client.set_options(location = metadata_url)
 
-	# set the session id from the login result
-	session_header = metadata_client.factory.create("SessionHeader")
-	session_header.sessionId = job.access_token
-	metadata_client.set_options(soapheaders = session_header)
+		# set the session id from the login result
+		session_header = metadata_client.factory.create("SessionHeader")
+		session_header.sessionId = job.access_token
+		metadata_client.set_options(soapheaders = session_header)
 
-	component_list = []
+		component_list = []
 
-	component = metadata_client.factory.create("ListMetadataQuery")
-	component.type = 'ValidationRule'
-	component_list.append(component)
+		component = metadata_client.factory.create("ListMetadataQuery")
+		component.type = 'ValidationRule'
+		component_list.append(component)
 
-	component = metadata_client.factory.create("ListMetadataQuery")
-	component.type = 'WorkflowRule'
-	component_list.append(component)
+		component = metadata_client.factory.create("ListMetadataQuery")
+		component.type = 'WorkflowRule'
+		component_list.append(component)
 
-	component = metadata_client.factory.create("ListMetadataQuery")
-	component.type = 'ApexTrigger'
-	component_list.append(component)
+		component = metadata_client.factory.create("ListMetadataQuery")
+		component.type = 'ApexTrigger'
+		component_list.append(component)
 
-	validation_rules = []
-	workflows = []
-	triggers = []
+		validation_rules = []
+		workflows = []
+		triggers = []
 
-	# Note: Only 3 metadata types supported
-	for component in metadata_client.service.listMetadata(component_list, settings.SALESFORCE_API_VERSION):
+		# Note: Only 3 metadata types supported
+		for component in metadata_client.service.listMetadata(component_list, settings.SALESFORCE_API_VERSION):
 
-		if component.type == 'ValidationRule':
-			validation_rules.append(component.fullName)
+			if component.type == 'ValidationRule':
+				validation_rules.append(component.fullName)
 
-		if component.type == 'WorkflowRule':
-			workflows.append(component.fullName)
+			if component.type == 'WorkflowRule':
+				workflows.append(component.fullName)
 
-		if component.type == 'ApexTrigger':
-			triggers.append(component.fullName)
+			if component.type == 'ApexTrigger':
+				triggers.append(component.fullName)
 
-	# Logic to query for details for each type of metadata.
-	# Note: Only 10 components are supported per query, so the list and counter are used to ensure that is met.
+		# Logic to query for details for each type of metadata.
+		# Note: Only 10 components are supported per query, so the list and counter are used to ensure that is met.
 
-	query_list = []
-	loop_counter = 0
+		query_list = []
+		loop_counter = 0
 
-	for validation_rule in validation_rules:
+		for validation_rule in validation_rules:
 
-		query_list.append(validation_rule)
+			query_list.append(validation_rule)
 
-		if len(query_list) >= 10 or (len(validation_rules) - loop_counter) <= 10:
+			if len(query_list) >= 10 or (len(validation_rules) - loop_counter) <= 10:
 
-			for component in metadata_client.service.readMetadata('ValidationRule', query_list)[0]:
+				for component in metadata_client.service.readMetadata('ValidationRule', query_list)[0]:
 
-				val_rule = ValidationRule()
-				val_rule.job = job
-				val_rule.object_name = component.fullName.split('.')[0]
-				val_rule.name = component.fullName.split('.')[1]
-				val_rule.fullName = component.fullName
-				val_rule.active = component.active
+					val_rule = ValidationRule()
+					val_rule.job = job
+					val_rule.object_name = component.fullName.split('.')[0]
+					val_rule.name = component.fullName.split('.')[1]
+					val_rule.fullName = component.fullName
+					val_rule.active = component.active
 
-				if 'description' in component:
-					val_rule.description = component.description.encode('ascii', 'replace')
+					if 'description' in component:
+						val_rule.description = component.description.encode('ascii', 'replace')
 
-				if 'errorConditionFormula' in component:
-					val_rule.errorConditionFormula = component.errorConditionFormula.encode('ascii', 'replace')
+					if 'errorConditionFormula' in component:
+						val_rule.errorConditionFormula = component.errorConditionFormula.encode('ascii', 'replace')
 
-				if 'errorDisplayField' in component:
-					val_rule.errorDisplayField = component.errorDisplayField.encode('ascii', 'replace')
+					if 'errorDisplayField' in component:
+						val_rule.errorDisplayField = component.errorDisplayField.encode('ascii', 'replace')
 
-				if 'errorMessage' in component:
-					val_rule.errorMessage = component.errorMessage.encode('ascii', 'replace')
+					if 'errorMessage' in component:
+						val_rule.errorMessage = component.errorMessage.encode('ascii', 'replace')
 
-				val_rule.save()
+					val_rule.save()
 
-			query_list = []
+				query_list = []
 
-		loop_counter = loop_counter + 1
+			loop_counter = loop_counter + 1
 
-	query_list = []
-	loop_counter = 0
+		query_list = []
+		loop_counter = 0
 
-	for workflow in workflows:
+		for workflow in workflows:
 
-		query_list.append(workflow)
+			query_list.append(workflow)
 
-		if len(query_list) >= 10 or (len(workflows) - loop_counter) <= 10:
+			if len(query_list) >= 10 or (len(workflows) - loop_counter) <= 10:
 
-			for component in metadata_client.service.readMetadata('WorkflowRule', query_list)[0]:
+				for component in metadata_client.service.readMetadata('WorkflowRule', query_list)[0]:
 
-				wflow_rule = WorkflowRule()
-				wflow_rule.job = job
-				wflow_rule.object_name = component.fullName.split('.')[0]
-				wflow_rule.name = component.fullName.split('.')[1]
-				wflow_rule.fullName = component.fullName
-				wflow_rule.active = component.active
-
-				if 'actions' in component:
-					actions = ''
-					for action in component.actions:
-						actions += '- ' + action.type + ': ' + action.name + '\n'
-					wflow_rule.actions = actions.rstrip()
-
-				if 'booleanFilter' in component:
-					wflow_rule.booleanFilter = component.booleanFilter.encode('ascii', 'replace')
-
-				if 'criteriaItems' in component:
-					criteria_items = ''
-					for criteriaItem in component.criteriaItems:
-						criteria_items += '- ' + criteriaItem.field.split('.')[1] + ' ' + criteriaItem.operation + ' '
-						if 'value' in criteriaItem:
-							criteria_items += criteriaItem.value
-						elif 'valueField' in criteriaItem:
-							criteria_items += criteriaItem.valueField
-						criteria_items += '\n'
-
-					wflow_rule.criteriaItems = criteria_items.rstrip()
-
-				if 'description' in component:
-					wflow_rule.description = component.description.encode('ascii', 'replace')
-
-				if 'formula' in component:
-					wflow_rule.formula = component.formula.encode('ascii', 'replace')
-
-				if 'triggerType' in component:
-					wflow_rule.triggerType = component.triggerType.encode('ascii', 'replace')
-
-				if 'workflowTimeTriggers' in component:
-					time_triggers = ''
-					for time_trigger in component.workflowTimeTriggers:
-						time_triggers += '- ' + time_trigger.timeLength + ' ' + time_trigger.workflowTimeTriggerUnit + ':\n'
-						if 'actions' in time_trigger:
-							for action in time_trigger.actions:
-								time_triggers += '---- ' + action.type + ': ' + action.name + '\n'
-						time_triggers += '\n'
-					wflow_rule.workflowTimeTriggers = time_triggers.rstrip()
-
-				wflow_rule.save()
-
-			query_list = []
-
-		loop_counter = loop_counter + 1
-
-	# Query for flows
-	# Note: Using the Tooling REST API, as the Metadata API didn't return the stuff I needed
-	# And the Tooling SOAP API I couldn't get working
-	request_url = job.instance_url + '/services/data/v' + str(settings.SALESFORCE_API_VERSION) + '.0/tooling/'
-	request_url += 'query/?q=Select+Id,ActiveVersion.VersionNumber,LatestVersion.VersionNumber,FullName+From+FlowDefinition'
-	headers = { 
-		'Accept': 'application/json',
-		'X-PrettyPrint': 1,
-		'Authorization': 'Bearer ' + job.access_token
-	}
-
-	flows_query = requests.get(request_url, headers = headers)
-
-	if flows_query.status_code == 200 and 'records' in flows_query.json():
-
-		for component in flows_query.json()['records']:
-
-			flow = Flow()
-			flow.job = job
-			flow.name = component['FullName']
-			flow.active = False
-
-			if 'LatestVersion' in component and component['LatestVersion']:
-				flow.latest_version = component['LatestVersion']['VersionNumber']
-			else:
-				flow.latest_version = 1
-
-			if 'ActiveVersion' in component and component['ActiveVersion']:
-				flow.active_version = component['ActiveVersion']['VersionNumber']
-				flow.active = True
-
-			flow.save()
-
-
-	# Get triggers
-	retrieve_request = metadata_client.factory.create('RetrieveRequest')
-	retrieve_request.apiVersion = settings.SALESFORCE_API_VERSION
-	retrieve_request.singlePackage = True
-	retrieve_request.packageNames = None
-	retrieve_request.specificFiles = None
-
-	trigger_retrieve_list = []
-
-	for trigger in triggers:
-
-		trigger_to_retrieve = metadata_client.factory.create('PackageTypeMembers')
-		trigger_to_retrieve.members = trigger
-		trigger_to_retrieve.name = 'ApexTrigger'
-		trigger_retrieve_list.append(trigger_to_retrieve)
-	
-	package_to_retrieve = metadata_client.factory.create('Package')
-	package_to_retrieve.apiAccessLevel = None
-	package_to_retrieve.types = trigger_retrieve_list
-
-	# Add retrieve package to the retrieve request
-	retrieve_request.unpackaged = package_to_retrieve
-
-	# Start the async retrieve job
-	retrieve_job = metadata_client.service.retrieve(retrieve_request)
-
-	# Set the retrieve result - should be unfinished initially
-	retrieve_result = metadata_client.service.checkRetrieveStatus(retrieve_job.id)
-
-	# Continue to query retrieve result until it's done
-	while not retrieve_result.done:
-
-		# check job status
-		retrieve_result = metadata_client.service.checkRetrieveStatus(retrieve_job.id)
-
-		# sleep job for 3 seconds
-		time.sleep(3)
-
-	if not retrieve_result.success:
-
-		job.status = 'Error'
-		job.json_message = retrieve_result
-
-		if 'errorMessage' in retrieve_result:
-			job.error = retrieve_result.errorMessage
-
-		if 'messages' in retrieve_result:
-			job.error = retrieve_result.messages[0].problem
-
-	else:
-
-		job.json_message = retrieve_result
-
-		# Save the zip file result to server
-		zip_file = open('metadata.zip', 'w+')
-		zip_file.write(b64decode(retrieve_result.zipFile))
-		zip_file.close()
-
-		# Open zip file
-		metadata = ZipFile('metadata.zip', 'r')
-
-		# Loop through files in the zip file
-		for filename in metadata.namelist():
-
-			try:
-
-				if '-meta.xml' not in filename.split('/')[1]:
-					
-					trigger = ApexTrigger()
-					trigger.job = job
-					trigger.name = filename.split('/')[1][:-8]
-					trigger.content = metadata.read(filename)
-					trigger.save()
-
+					wflow_rule = WorkflowRule()
+					wflow_rule.job = job
+					wflow_rule.object_name = component.fullName.split('.')[0]
+					wflow_rule.name = component.fullName.split('.')[1]
+					wflow_rule.fullName = component.fullName
+					wflow_rule.active = component.active
+
+					if 'actions' in component:
+						actions = ''
+						for action in component.actions:
+							actions += '- ' + action.type + ': ' + action.name + '\n'
+						wflow_rule.actions = actions.rstrip()
+
+					if 'booleanFilter' in component:
+						wflow_rule.booleanFilter = component.booleanFilter.encode('ascii', 'replace')
+
+					if 'criteriaItems' in component:
+						criteria_items = ''
+						for criteriaItem in component.criteriaItems:
+							criteria_items += '- ' + criteriaItem.field.split('.')[1] + ' ' + criteriaItem.operation + ' '
+							if 'value' in criteriaItem:
+								criteria_items += criteriaItem.value
+							elif 'valueField' in criteriaItem:
+								criteria_items += criteriaItem.valueField
+							criteria_items += '\n'
+
+						wflow_rule.criteriaItems = criteria_items.rstrip()
+
+					if 'description' in component:
+						wflow_rule.description = component.description.encode('ascii', 'replace')
+
+					if 'formula' in component:
+						wflow_rule.formula = component.formula.encode('ascii', 'replace')
+
+					if 'triggerType' in component:
+						wflow_rule.triggerType = component.triggerType.encode('ascii', 'replace')
+
+					if 'workflowTimeTriggers' in component:
+						time_triggers = ''
+						for time_trigger in component.workflowTimeTriggers:
+							time_triggers += '- ' + time_trigger.timeLength + ' ' + time_trigger.workflowTimeTriggerUnit + ':\n'
+							if 'actions' in time_trigger:
+								for action in time_trigger.actions:
+									time_triggers += '---- ' + action.type + ': ' + action.name + '\n'
+							time_triggers += '\n'
+						wflow_rule.workflowTimeTriggers = time_triggers.rstrip()
+
+					wflow_rule.save()
+
+				query_list = []
+
+			loop_counter = loop_counter + 1
+
+		# Query for flows
+		# Note: Using the Tooling REST API, as the Metadata API didn't return the stuff I needed
+		# And the Tooling SOAP API I couldn't get working
+		request_url = job.instance_url + '/services/data/v' + str(settings.SALESFORCE_API_VERSION) + '.0/tooling/'
+		request_url += 'query/?q=Select+Id,ActiveVersion.VersionNumber,LatestVersion.VersionNumber,FullName+From+FlowDefinition'
+		headers = { 
+			'Accept': 'application/json',
+			'X-PrettyPrint': 1,
+			'Authorization': 'Bearer ' + job.access_token
+		}
+
+		flows_query = requests.get(request_url, headers = headers)
+
+		if flows_query.status_code == 200 and 'records' in flows_query.json():
+
+			for component in flows_query.json()['records']:
+
+				flow = Flow()
+				flow.job = job
+				flow.name = component['FullName']
+				flow.active = False
+
+				if 'LatestVersion' in component and component['LatestVersion']:
+					flow.latest_version = component['LatestVersion']['VersionNumber']
 				else:
+					flow.latest_version = 1
 
-					# Take the previous trigger to assign meta content to
-					trigger = ApexTrigger.objects.all().order_by('-id')[0]
-					trigger.meta_content = metadata.read(filename)
+				if 'ActiveVersion' in component and component['ActiveVersion']:
+					flow.active_version = component['ActiveVersion']['VersionNumber']
+					flow.active = True
 
-					# Find status of trigger from meta xml
-					for node in ET.fromstring(metadata.read(filename)):
-						if 'status' in node.tag:
-							trigger.active = node.text == 'Active'
-							break
+				flow.save()
 
-					trigger.save()
 
-			# not in a folder (could be package.xml). Skip record
-			except Exception as error:
-				continue
+		# Get triggers
+		retrieve_request = metadata_client.factory.create('RetrieveRequest')
+		retrieve_request.apiVersion = settings.SALESFORCE_API_VERSION
+		retrieve_request.singlePackage = True
+		retrieve_request.packageNames = None
+		retrieve_request.specificFiles = None
 
-		# Delete zip file, no need to store
-		os.remove('metadata.zip')
+		trigger_retrieve_list = []
 
-		job.status = 'Finished'
+		for trigger in triggers:
 
-	#except Exception as error:
+			trigger_to_retrieve = metadata_client.factory.create('PackageTypeMembers')
+			trigger_to_retrieve.members = trigger
+			trigger_to_retrieve.name = 'ApexTrigger'
+			trigger_retrieve_list.append(trigger_to_retrieve)
 		
-	#	job.status = 'Error'
-	#	job.error = error
+		package_to_retrieve = metadata_client.factory.create('Package')
+		package_to_retrieve.apiAccessLevel = None
+		package_to_retrieve.types = trigger_retrieve_list
+
+		# Add retrieve package to the retrieve request
+		retrieve_request.unpackaged = package_to_retrieve
+
+		# Start the async retrieve job
+		retrieve_job = metadata_client.service.retrieve(retrieve_request)
+
+		# Set the retrieve result - should be unfinished initially
+		retrieve_result = metadata_client.service.checkRetrieveStatus(retrieve_job.id, True)
+
+		# Continue to query retrieve result until it's done
+		while not retrieve_result.done:
+
+			# check job status
+			retrieve_result = metadata_client.service.checkRetrieveStatus(retrieve_job.id, True)
+
+			# sleep job for 3 seconds
+			time.sleep(3)
+
+		if not retrieve_result.success:
+
+			job.status = 'Error'
+			job.json_message = retrieve_result
+
+			if 'errorMessage' in retrieve_result:
+				job.error = retrieve_result.errorMessage
+
+			if 'messages' in retrieve_result:
+				job.error = retrieve_result.messages[0].problem
+
+		else:
+
+			job.json_message = retrieve_result
+
+			# Save the zip file result to server
+			zip_file = open('metadata.zip', 'w+')
+			zip_file.write(b64decode(retrieve_result.zipFile))
+			zip_file.close()
+
+			# Open zip file
+			metadata = ZipFile('metadata.zip', 'r')
+
+			# Loop through files in the zip file
+			for filename in metadata.namelist():
+
+				try:
+
+					if '-meta.xml' not in filename.split('/')[1]:
+						
+						trigger = ApexTrigger()
+						trigger.job = job
+						trigger.name = filename.split('/')[1][:-8]
+						trigger.content = metadata.read(filename)
+						trigger.save()
+
+					else:
+
+						# Take the previous trigger to assign meta content to
+						trigger = ApexTrigger.objects.all().order_by('-id')[0]
+						trigger.meta_content = metadata.read(filename)
+
+						# Find status of trigger from meta xml
+						for node in ET.fromstring(metadata.read(filename)):
+							if 'status' in node.tag:
+								trigger.active = node.text == 'Active'
+								break
+
+						trigger.save()
+
+				# not in a folder (could be package.xml). Skip record
+				except Exception as error:
+					continue
+
+			# Delete zip file, no need to store
+			os.remove('metadata.zip')
+
+			job.status = 'Finished'
+
+	except Exception as error:
+		
+		job.status = 'Error'
+		job.error = error
 
 	job.finished_date = datetime.datetime.now()
 	job.save()
