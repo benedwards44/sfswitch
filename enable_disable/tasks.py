@@ -329,7 +329,6 @@ def deploy_metadata(deploy_job):
 	session_header.sessionId = deploy_job.job.access_token
 	metadata_client.set_options(soapheaders = session_header)
 
-	results = []
 	deploy_components = DeployJobComponent.objects.filter(deploy_job = deploy_job.id)
 
 	try:
@@ -350,7 +349,6 @@ def deploy_metadata(deploy_job):
 						update_component.active = deploy_component.enable
 
 					result = metadata_client.service.updateMetadata(update_components)
-					results.append(result)
 
 					update_list = []
 
@@ -374,7 +372,6 @@ def deploy_metadata(deploy_job):
 						update_component.active = deploy_component.enable
 
 					result = metadata_client.service.updateMetadata(update_component)
-					results.append(result)
 
 					update_list = []
 
@@ -405,7 +402,6 @@ def deploy_metadata(deploy_job):
 							update_component.activeVersionNumber = None
 
 					result = metadata_client.service.updateMetadata(update_component)
-					results.append(result)
 
 					update_list = []
 
