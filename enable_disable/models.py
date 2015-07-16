@@ -66,7 +66,7 @@ class ApexTrigger(models.Model):
 	def __str__(self):
 		return '%s' % (self.name)
 
-class Flow(models.model):
+class Flow(models.Model):
 	job = models.ForeignKey(Job)
 	object_name = models.CharField(max_length=255, blank=True, null=True)
 	active = models.BooleanField(default=False)
