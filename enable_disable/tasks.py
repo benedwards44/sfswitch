@@ -73,7 +73,6 @@ def get_metadata(job):
 				triggers.append(component.fullName)
 
 		# Clear the list
-		"""
 		component_list = []
 
 		component = metadata_client.factory.create("ListMetadataQuery")
@@ -84,7 +83,7 @@ def get_metadata(job):
 		for component in metadata_client.service.listMetadata(component_list, settings.SALESFORCE_API_VERSION):
 
 			flows.append(component.fullName)
-		"""
+
 
 		# Logic to query for details for each type of metadata.
 		# Note: Only 10 components are supported per query, so the list and counter are used to ensure that is met.
@@ -189,11 +188,11 @@ def get_metadata(job):
 
 			loop_counter = loop_counter + 1
 
-
+		"""
 		query_list = []
 		loop_counter = 0
 
-		"""
+		
 		for flow in flows:
 
 			query_list.append(flow)
@@ -204,30 +203,30 @@ def get_metadata(job):
 
 					flow = Flow()
 					flow.job = job
-					val_rule.object_name = component.fullName.split('.')[0]
-					val_rule.name = component.fullName.split('.')[1]
-					val_rule.fullName = component.fullName
-					val_rule.active = component.active
+					flow.name = component.fullName
 
-					if 'description' in component:
-						val_rule.description = component.description.encode('ascii', 'replace')
+					# If the flow is already active
+					if 'activeVersionNumber' in component:
 
-					if 'errorConditionFormula' in component:
-						val_rule.errorConditionFormula = component.errorConditionFormula.encode('ascii', 'replace')
+						flow.active_version = component.activeVersionNumber
+						flow.latest_version = component.activeVersionNumber
+						flow.active = True
 
-					if 'errorDisplayField' in component:
-						val_rule.errorDisplayField = component.errorDisplayField.encode('ascii', 'replace')
+					# Else it's inactive
+					else:
 
-					if 'errorMessage' in component:
-						val_rule.errorMessage = component.errorMessage.encode('ascii', 'replace')
+						flow.active = False
 
-					val_rule.save()
+						# Calculate the latest latest_version number for calculating the version to activate
+
+
+
+					flow.save()
 
 				query_list = []
 
 			loop_counter = loop_counter + 1
 		"""
-
 
 		# Get triggers
 		retrieve_request = metadata_client.factory.create('RetrieveRequest')

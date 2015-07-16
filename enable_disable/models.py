@@ -68,10 +68,10 @@ class ApexTrigger(models.Model):
 
 class Flow(models.Model):
 	job = models.ForeignKey(Job)
-	object_name = models.CharField(max_length=255, blank=True, null=True)
 	active = models.BooleanField(default=False)
 	name = models.CharField(max_length=255, blank=True, null=True)
 	latest_version = models.SmallIntegerField(blank=True, null=True)
+	active_version = models.SmallIntegerField(blank=True, null=True)
 
 	def __str__(self):
 		return '%s' % (self.name)
