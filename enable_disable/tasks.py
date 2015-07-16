@@ -350,6 +350,11 @@ def deploy_metadata(deploy_job):
 
 					result = metadata_client.service.updateMetadata(update_components)
 
+					if not result[0].success:
+
+						deploy_job.status = 'Error'
+						deploy_job.error = result[0].errors[0].message
+
 					update_list = []
 
 				loop_counter = loop_counter + 1
@@ -372,6 +377,11 @@ def deploy_metadata(deploy_job):
 						update_component.active = deploy_component.enable
 
 					result = metadata_client.service.updateMetadata(update_components)
+
+					if not result[0].success:
+
+						deploy_job.status = 'Error'
+						deploy_job.error = result[0].errors[0].message
 
 					update_list = []
 
@@ -402,6 +412,12 @@ def deploy_metadata(deploy_job):
 							update_component.activeVersionNumber = None
 
 					result = metadata_client.service.updateMetadata(update_components)
+
+					if not result[0].success:
+
+						deploy_job.status = 'Error'
+						deploy_job.error = result[0].errors[0].message
+
 
 					update_list = []
 
