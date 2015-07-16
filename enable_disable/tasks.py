@@ -371,7 +371,7 @@ def deploy_metadata(deploy_job):
 					for update_component in update_components:
 						update_component.active = deploy_component.enable
 
-					result = metadata_client.service.updateMetadata(update_component)
+					result = metadata_client.service.updateMetadata(update_components)
 
 					update_list = []
 
@@ -401,7 +401,7 @@ def deploy_metadata(deploy_job):
 							# Set the activated version to nothing
 							update_component.activeVersionNumber = None
 
-					result = metadata_client.service.updateMetadata(update_component)
+					result = metadata_client.service.updateMetadata(update_components)
 
 					update_list = []
 
