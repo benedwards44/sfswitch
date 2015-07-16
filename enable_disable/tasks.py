@@ -17,7 +17,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sfswitch.settings')
 
 app = Celery('tasks', broker=os.environ.get('REDISTOGO_URL', 'redis://localhost'))
 
-from enable_disable.models import Job, ValidationRule, WorkflowRule, ApexTrigger, DeployJob, DeployJobComponent
+from enable_disable.models import Job, ValidationRule, WorkflowRule, ApexTrigger, Flow, DeployJob, DeployJobComponent
 
 @app.task
 def get_metadata(job): 
@@ -28,7 +28,7 @@ def get_metadata(job):
 	try:
 
 		# instantiate the metadata WSDL
-		metadata_client = Client('http://sfswitch.herokuapp.com/static/metadata-32.xml')
+		metadata_client = Client('http://sfswitch.herokuapp.com/static/metadata-34.xml')
 
 		# URL for metadata API
 		metadata_url = job.instance_url + '/services/Soap/m/' + str(settings.SALESFORCE_API_VERSION) + '.0/' + job.org_id
@@ -58,7 +58,9 @@ def get_metadata(job):
 		validation_rules = []
 		workflows = []
 		triggers = []
+		flows = []
 
+		# Note: Only 3 metadata types supported
 		for component in metadata_client.service.listMetadata(component_list, settings.SALESFORCE_API_VERSION):
 
 			if component.type == 'ValidationRule':
@@ -69,6 +71,23 @@ def get_metadata(job):
 
 			if component.type == 'ApexTrigger':
 				triggers.append(component.fullName)
+
+		# Clear the list
+		"""
+		component_list = []
+
+		component = metadata_client.factory.create("ListMetadataQuery")
+		component.type = 'FlowDefinition'
+		component_list.append(component)
+
+		# Re-query for flows
+		for component in metadata_client.service.listMetadata(component_list, settings.SALESFORCE_API_VERSION):
+
+			flows.append(component.fullName)
+		"""
+
+		# Logic to query for details for each type of metadata.
+		# Note: Only 10 components are supported per query, so the list and counter are used to ensure that is met.
 
 		query_list = []
 		loop_counter = 0
@@ -169,6 +188,46 @@ def get_metadata(job):
 				query_list = []
 
 			loop_counter = loop_counter + 1
+
+
+		query_list = []
+		loop_counter = 0
+
+		"""
+		for flow in flows:
+
+			query_list.append(flow)
+
+			if len(query_list) >= 10 or (len(flows) - loop_counter) <= 10:
+
+				for component in metadata_client.service.readMetadata('FlowDefinition', query_list)[0]:
+
+					flow = Flow()
+					flow.job = job
+					val_rule.object_name = component.fullName.split('.')[0]
+					val_rule.name = component.fullName.split('.')[1]
+					val_rule.fullName = component.fullName
+					val_rule.active = component.active
+
+					if 'description' in component:
+						val_rule.description = component.description.encode('ascii', 'replace')
+
+					if 'errorConditionFormula' in component:
+						val_rule.errorConditionFormula = component.errorConditionFormula.encode('ascii', 'replace')
+
+					if 'errorDisplayField' in component:
+						val_rule.errorDisplayField = component.errorDisplayField.encode('ascii', 'replace')
+
+					if 'errorMessage' in component:
+						val_rule.errorMessage = component.errorMessage.encode('ascii', 'replace')
+
+					val_rule.save()
+
+				query_list = []
+
+			loop_counter = loop_counter + 1
+		"""
+
 
 		# Get triggers
 		retrieve_request = metadata_client.factory.create('RetrieveRequest')
@@ -283,7 +342,7 @@ def deploy_metadata(deploy_job):
 	deploy_job.save()
 
 	# Set up metadata API connection
-	metadata_client = Client('http://sfswitch.herokuapp.com/static/metadata-32.xml')
+	metadata_client = Client('http://sfswitch.herokuapp.com/static/metadata-34.xml')
 	metadata_url = deploy_job.job.instance_url + '/services/Soap/m/' + str(settings.SALESFORCE_API_VERSION) + '.0/' + deploy_job.job.org_id
 	metadata_client.set_options(location = metadata_url)
 	session_header = metadata_client.factory.create("SessionHeader")

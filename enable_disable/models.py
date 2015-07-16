@@ -66,6 +66,17 @@ class ApexTrigger(models.Model):
 	def __str__(self):
 		return '%s' % (self.name)
 
+class Flow(models.model):
+	job = models.ForeignKey(Job)
+	object_name = models.CharField(max_length=255, blank=True, null=True)
+	active = models.BooleanField(default=False)
+	name = models.CharField(max_length=255, blank=True, null=True)
+	latest_version = models.SmallIntegerField(blank=True, null=True)
+
+	def __str__(self):
+		return '%s' % (self.name)
+
+
 class DeployJob(models.Model):
 	job = models.ForeignKey(Job)
 	metadata_type = models.CharField(max_length=255, blank=True, null=True)

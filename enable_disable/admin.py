@@ -1,5 +1,5 @@
 from django.contrib import admin
-from enable_disable.models import Job, ValidationRule, WorkflowRule, ApexTrigger, DeployJob, DeployJobComponent
+from enable_disable.models import Job, ValidationRule, WorkflowRule, ApexTrigger, Flow, DeployJob, DeployJobComponent
 
 """
 	INLINES/RELATED LISTS 
@@ -22,6 +22,12 @@ class ApexTriggerInline(admin.TabularInline):
 	model = ApexTrigger
 	extra = 0
 
+class FlowInline(admin.TabularInline):
+	fields = ['object_name', 'name','active', 'latest_version']
+	ordering = ['object_name', 'name']
+	model = Flow
+	extra = 0
+
 class DeployJobInline(admin.TabularInline):
 	fields = ['metadata_type','status','error']
 	ordering = ['id']
@@ -41,7 +47,7 @@ class DeployJobComponentInline(admin.TabularInline):
 class JobAdmin(admin.ModelAdmin):
     list_display = ('created_date','finished_date','status','error')
     ordering = ['-created_date']
-    inlines = [ValidationRuleInline, WorkflowRuleInline, ApexTriggerInline, DeployJobInline]
+    inlines = [ValidationRuleInline, WorkflowRuleInline, ApexTriggerInline, FlowInline, DeployJobInline]
 
 class DeployJobAdmin(admin.ModelAdmin):
 	list_display = ('job','metadata_type','status','error')
