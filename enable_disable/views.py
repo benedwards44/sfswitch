@@ -229,6 +229,10 @@ def update_metadata(request, job_id, metadata_type):
 
 				deploy_job_component.trigger = ApexTrigger.objects.get(id = int(component['component_id']))
 
+			elif metadata_type == 'flow':
+
+				deploy_job_component.trigger = Flow.objects.get(id = int(component['component_id']))
+
 			deploy_job_component.enable = component['enable']
 			deploy_job_component.save()
 

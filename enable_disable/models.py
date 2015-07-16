@@ -94,6 +94,7 @@ class DeployJobComponent(models.Model):
 	deploy_job = models.ForeignKey(DeployJob)
 	validation_rule = models.ForeignKey(ValidationRule, blank=True, null=True)
 	workflow_rule = models.ForeignKey(WorkflowRule, blank=True, null=True)
+	flow = models.ForeignKey(Flow, blank=True, null=True)
 	trigger = models.ForeignKey(ApexTrigger, blank=True, null=True)
 	enable = models.BooleanField()
 	status = models.CharField(max_length=255, blank=True, null=True)

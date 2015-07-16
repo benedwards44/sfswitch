@@ -382,6 +382,38 @@ def deploy_metadata(deploy_job):
 
 			deploy_job.status = 'Finished'
 
+		elif deploy_job.metadata_type == 'flow':
+
+			update_list = []
+			loop_counter = 0
+
+			for deploy_component in deploy_components:
+
+				update_list.append(deploy_component.flow.name)
+
+				if len(update_list) >= 10 or (len(deploy_components) - loop_counter) <= 10:
+
+					update_components = metadata_client.service.readMetadata('FlowDefinition', update_list)[0]
+
+					for update_component in update_components:
+
+						# Enable the component
+						if deploy_component.enable:
+							update_component.activeVersionNumber = deploy_component.flow.latest_version
+						else:
+							# Set the activated version to nothing
+							update_component.activeVersionNumber = None
+
+					result = metadata_client.service.updateMetadata(update_component)
+					results.append(result)
+
+					update_list = []
+
+				loop_counter = loop_counter + 1
+
+			deploy_job.status = 'Finished'
+
+
 		elif deploy_job.metadata_type == 'trigger':
 
 			# Create triggers directory
