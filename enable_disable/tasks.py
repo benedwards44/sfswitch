@@ -195,6 +195,7 @@ def get_metadata(job):
 				flow = Flow()
 				flow.job = job
 				flow.name = component['FullName']
+				flow.active = False
 
 				if 'LatestVersion' in component and component['LatestVersion']:
 					flow.latest_version = component['LatestVersion']['VersionNumber']
@@ -204,8 +205,6 @@ def get_metadata(job):
 				if 'ActiveVersion' in component and component['ActiveVersion']:
 					flow.active_version = component['ActiveVersion']['VersionNumber']
 					flow.active = True
-				else:
-					flow.active = False
 
 				flow.save()
 
