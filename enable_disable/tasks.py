@@ -183,12 +183,12 @@ def get_metadata(job):
 		headers = { 
 			'Accept': 'application/json',
 			'X-PrettyPrint': 1,
-			'Authorization': 'Bearer ' job.access_token
+			'Authorization': 'Bearer ' + job.access_token
 		}
 
 		flows_query = requests.get(request_url, headers = headers)
 
-		if flows_query.status_code == 200:
+		if flows_query.status_code == 200 and 'records' in flows_query.json():
 
 			for component in flows_query.json()['records']:
 
