@@ -22,6 +22,9 @@ class Job(models.Model):
 	def triggers(self):
 		return self.apextrigger_set.order_by('name')
 
+	def flows(self):
+		return self.flow_set.order_by('name')
+
 	def __str__(self):
 		return '%s' % (self.random_id)
 

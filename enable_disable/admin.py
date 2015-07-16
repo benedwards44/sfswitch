@@ -23,8 +23,8 @@ class ApexTriggerInline(admin.TabularInline):
 	extra = 0
 
 class FlowInline(admin.TabularInline):
-	fields = ['object_name', 'name','active', 'latest_version']
-	ordering = ['object_name', 'name']
+	fields = ['name','active', 'active_version', 'latest_version']
+	ordering = ['name']
 	model = Flow
 	extra = 0
 
