@@ -4,6 +4,7 @@ from django.conf import settings
 from zipfile import ZipFile
 from suds.client import Client
 from base64 import b64encode, b64decode
+import requests
 import xml.etree.ElementTree as ET
 import os
 import glob
@@ -58,7 +59,6 @@ def get_metadata(job):
 		validation_rules = []
 		workflows = []
 		triggers = []
-		flows = []
 
 		# Note: Only 3 metadata types supported
 		for component in metadata_client.service.listMetadata(component_list, settings.SALESFORCE_API_VERSION):
@@ -71,19 +71,6 @@ def get_metadata(job):
 
 			if component.type == 'ApexTrigger':
 				triggers.append(component.fullName)
-
-		# Clear the list
-		component_list = []
-
-		component = metadata_client.factory.create("ListMetadataQuery")
-		component.type = 'FlowDefinition'
-		component_list.append(component)
-
-		# Re-query for flows
-		for component in metadata_client.service.listMetadata(component_list, settings.SALESFORCE_API_VERSION):
-
-			flows.append(component.fullName)
-
 
 		# Logic to query for details for each type of metadata.
 		# Note: Only 10 components are supported per query, so the list and counter are used to ensure that is met.
@@ -188,45 +175,40 @@ def get_metadata(job):
 
 			loop_counter = loop_counter + 1
 
-		"""
-		query_list = []
-		loop_counter = 0
+		# Query for flows
+		# Note: Using the Tooling REST API, as the Metadata API didn't return the stuff I needed
+		# And the Tooling SOAP API I couldn't get working
+		request_url = job.instance_url + + 'services/data/v' + str(settings.SALESFORCE_API_VERSION) + '.0/tooling/'
+		request_url += 'query/?q=Select+Id,ActiveVersion.VersionNumber,LatestVersion.VersionNumber,FullName+From+FlowDefinition'
+		headers = { 
+			'Accept': 'application/json',
+			'X-PrettyPrint': 1,
+			'Authorization': 'Bearer ' job.access_token
+		}
 
-		
-		for flow in flows:
+		flows_query = requests.get(request_url, headers = headers)
 
-			query_list.append(flow)
+		if flows_query.status_code == 200:
 
-			if len(query_list) >= 10 or (len(flows) - loop_counter) <= 10:
+			for component in flows_query.json()['records']:
 
-				for component in metadata_client.service.readMetadata('FlowDefinition', query_list)[0]:
+				flow = Flow()
+				flow.job = job
+				flow.name = component['FullName']
 
-					flow = Flow()
-					flow.job = job
-					flow.name = component.fullName
+				if 'LatestVersion' in component:
+					flow.latest_version = component['LatestVersion']['VersionNumber']
+				else:
+					flow.latest_version = 1
 
-					# If the flow is already active
-					if 'activeVersionNumber' in component:
+				if 'ActiveVersion' in component:
+					flow.active_version = component['ActiveVersion']['VersionNumber']
+					flow.active = True
+				else:
+					flow.active = False
 
-						flow.active_version = component.activeVersionNumber
-						flow.latest_version = component.activeVersionNumber
-						flow.active = True
+				flow.save()
 
-					# Else it's inactive
-					else:
-
-						flow.active = False
-
-						# Calculate the latest latest_version number for calculating the version to activate
-
-
-
-					flow.save()
-
-				query_list = []
-
-			loop_counter = loop_counter + 1
-		"""
 
 		# Get triggers
 		retrieve_request = metadata_client.factory.create('RetrieveRequest')
