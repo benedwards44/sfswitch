@@ -187,7 +187,6 @@ def job(request, job_id):
 	wf_object_names = list(set(wf_object_names))
 	wf_object_names.sort()
 
-	triggers = []
 
 	return render_to_response('job.html', RequestContext(request, {
 		'job': job, 
@@ -195,7 +194,8 @@ def job(request, job_id):
 		'val_rules': job.validation_rules(),
 		'wf_object_names': wf_object_names, 
 		'wf_rules': job.workflow_rules(),
-		'triggers': job.triggers()
+		'triggers': job.triggers(),
+		'flows': job.flows()
 	}))
 
 def update_metadata(request, job_id, metadata_type):

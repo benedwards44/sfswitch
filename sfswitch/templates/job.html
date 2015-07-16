@@ -81,6 +81,12 @@
     		</li>
 
     		<li role="presentation">
+    			<a href="#flows" aria-controls="flows" role="tab" data-toggle="tab">
+    				Process Flows
+    			</a>
+    		</li>
+
+    		<li role="presentation">
     			<a href="#triggers" aria-controls="triggers" role="tab" data-toggle="tab">
     				Triggers
     			</a>
@@ -349,6 +355,84 @@
 
 					{% endif %}
 
+			</div>
+
+			<div role="tabpanel" class="tab-pane" id="flows">
+
+				{% if not flows %}
+
+					<div class="alert alert-warning" role="alert">
+						There don't appear to be any Process Flows for your Org.
+					</div>
+
+				{% else %}
+
+					<div class="col-md-12 text-center deploy-actions">
+
+						<button type="button" id="rollback__flow" class="btn btn-warning btn-sm text-center rollback">
+							Rollback to Original
+						</button>
+						<button type="button" id="submit__flow" class="btn btn-info btn-sm text-center submit">
+							Deploy Changes
+						</button>
+
+					</div>
+
+					<div class="col-md-12">
+
+						<hr style="margin-top:10px;margin-bottom:10px;"/>
+						
+	  					<table class="table table-hover">
+
+	  						<thead>
+
+								<tr>
+									<th width="80%"></th>
+										
+									<th width="10%">
+										<button type="button" class="btn btn-success btn-xs enable">
+											Enable All
+										</button>
+									</th>
+
+									<th width="10%">
+										<button type="button" class="btn btn-danger btn-xs disable">
+											Disable All
+										</button>
+									</th>
+
+								</tr>
+
+							</thead>
+
+							<tbody>
+
+								{% for flow in flows %}
+
+									<tr>
+
+										<td colspan="2" width="90%" class="component">
+											{{ flow.name }}
+										</td>
+
+										<td width="10%" id="{{ flow.id }}" class="flow">
+											<input type="checkbox" {% if flow.active %}checked="checked"{% endif %} data-off-color="warning" data-size="mini" class="new_value" />
+											<input type="hidden" class="old_value" value="{{ flow.active }}" />
+											<input type="hidden" class="orig_value" value="{{ flow.active }}" />
+										</td>
+
+									</tr>
+
+								{% endfor %}
+
+							</tbody>
+
+	  					</table>
+
+	  				</div>
+
+					{% endif %}
+				
 			</div>
 
 			<div role="tabpanel" class="tab-pane" id="triggers">
