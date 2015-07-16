@@ -359,7 +359,8 @@ def deploy_metadata(deploy_job):
 
 				loop_counter = loop_counter + 1
 
-			deploy_job.status = 'Finished'
+			if deploy_job.status != 'Error':
+				deploy_job.status = 'Finished'
 
 		elif deploy_job.metadata_type == 'workflow_rule':
 
@@ -387,7 +388,8 @@ def deploy_metadata(deploy_job):
 
 				loop_counter = loop_counter + 1
 
-			deploy_job.status = 'Finished'
+			if deploy_job.status != 'Error':
+				deploy_job.status = 'Finished'
 
 		elif deploy_job.metadata_type == 'flow':
 
@@ -423,7 +425,8 @@ def deploy_metadata(deploy_job):
 
 				loop_counter = loop_counter + 1
 
-			deploy_job.status = 'Finished'
+			if deploy_job.status != 'Error':
+				deploy_job.status = 'Finished'
 
 
 		elif deploy_job.metadata_type == 'trigger':
