@@ -71,6 +71,7 @@ class ApexTrigger(models.Model):
 
 class Flow(models.Model):
 	job = models.ForeignKey(Job)
+	flow_id = models.CharField(max_length=255, blank=True, null=True)
 	active = models.BooleanField(default=False)
 	name = models.CharField(max_length=255, blank=True, null=True)
 	latest_version = models.SmallIntegerField(blank=True, null=True)

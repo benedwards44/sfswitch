@@ -195,6 +195,7 @@ def get_metadata(job):
 				flow = Flow()
 				flow.job = job
 				flow.name = component['FullName']
+				flow.flow_id = component['Id']
 				flow.active = False
 
 				if 'LatestVersion' in component and component['LatestVersion']:
@@ -393,37 +394,42 @@ def deploy_metadata(deploy_job):
 
 		elif deploy_job.metadata_type == 'flow':
 
-			update_list = []
-			loop_counter = 0
+			# Deploy flows using REST API
+			# SOAP API doesn't support an easy update
+			request_url = deploy_job.job.instance_url + '/services/data/v' + str(settings.SALESFORCE_API_VERSION) + '.0/tooling/sobjects/FlowDefinition/'
+			headers = { 
+				'Accept': 'application/json',
+				'X-PrettyPrint': 1,
+				'Authorization': 'Bearer ' + deploy_job.job.access_token,
+				'Content-Type': 'application/json'
+			}
 
 			for deploy_component in deploy_components:
 
-				update_list.append(deploy_component.flow.name)
+				# Set the JSON body to patch
+				if deploy_component.enable:
 
-				if len(update_list) >= 10 or (len(deploy_components) - loop_counter) <= 10:
+					flow_update = {
+						'Metadata': {
+							'activeVersionNumber': deploy_component.flow.latest_version
+						}
+					}
 
-					update_components = metadata_client.service.readMetadata('FlowDefinition', update_list)[0]
+				else:
 
-					for update_component in update_components:
+					flow_update = {
+						'Metadata': {
+							'activeVersionNumber': None
+						}
+					}
 
-						# Enable the component
-						if deploy_component.enable:
-							update_component.activeVersionNumber = deploy_component.flow.latest_version
-						else:
-							# Set the activated version to nothing
-							update_component.activeVersionNumber = None
+				# Execute patch request to update the flow
+				result = requests.patch(request_url + deploy_component.flow.flow_id + '/', headers = headers, data = json.dumps(flow_update))
 
-					result = metadata_client.service.updateMetadata(update_components)
+				if result.status_code != 200 and result.status_code != 204:
+					deploy_job.status = 'Error'
+					deploy_job.error = result.json()[0]['errorCode'] + ': ' + result.json()[0]['message']
 
-					if not result[0].success:
-
-						deploy_job.status = 'Error'
-						deploy_job.error = result[0].errors[0].message
-
-
-					update_list = []
-
-				loop_counter = loop_counter + 1
 
 			if deploy_job.status != 'Error':
 				deploy_job.status = 'Finished'
