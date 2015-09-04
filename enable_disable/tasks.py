@@ -210,101 +210,105 @@ def get_metadata(job):
 
 				flow.save()
 
+		if triggers:
 
-		# Get triggers
-		retrieve_request = metadata_client.factory.create('RetrieveRequest')
-		retrieve_request.apiVersion = settings.SALESFORCE_API_VERSION
-		retrieve_request.singlePackage = True
-		retrieve_request.packageNames = None
-		retrieve_request.specificFiles = None
+			# Get triggers
+			retrieve_request = metadata_client.factory.create('RetrieveRequest')
+			retrieve_request.apiVersion = settings.SALESFORCE_API_VERSION
+			retrieve_request.singlePackage = True
+			retrieve_request.packageNames = None
+			retrieve_request.specificFiles = None
 
-		trigger_retrieve_list = []
+			trigger_retrieve_list = []
 
-		for trigger in triggers:
+			for trigger in triggers:
 
-			trigger_to_retrieve = metadata_client.factory.create('PackageTypeMembers')
-			trigger_to_retrieve.members = trigger
-			trigger_to_retrieve.name = 'ApexTrigger'
-			trigger_retrieve_list.append(trigger_to_retrieve)
-		
-		package_to_retrieve = metadata_client.factory.create('Package')
-		package_to_retrieve.apiAccessLevel = None
-		package_to_retrieve.types = trigger_retrieve_list
+				trigger_to_retrieve = metadata_client.factory.create('PackageTypeMembers')
+				trigger_to_retrieve.members = trigger
+				trigger_to_retrieve.name = 'ApexTrigger'
+				trigger_retrieve_list.append(trigger_to_retrieve)
+			
+			package_to_retrieve = metadata_client.factory.create('Package')
+			package_to_retrieve.apiAccessLevel = None
+			package_to_retrieve.types = trigger_retrieve_list
 
-		# Add retrieve package to the retrieve request
-		retrieve_request.unpackaged = package_to_retrieve
+			# Add retrieve package to the retrieve request
+			retrieve_request.unpackaged = package_to_retrieve
 
-		# Start the async retrieve job
-		retrieve_job = metadata_client.service.retrieve(retrieve_request)
+			# Start the async retrieve job
+			retrieve_job = metadata_client.service.retrieve(retrieve_request)
 
-		# Set the retrieve result - should be unfinished initially
-		retrieve_result = metadata_client.service.checkRetrieveStatus(retrieve_job.id, True)
-
-		# Continue to query retrieve result until it's done
-		while not retrieve_result.done:
-
-			# check job status
+			# Set the retrieve result - should be unfinished initially
 			retrieve_result = metadata_client.service.checkRetrieveStatus(retrieve_job.id, True)
 
-			# sleep job for 3 seconds
-			time.sleep(3)
+			# Continue to query retrieve result until it's done
+			while not retrieve_result.done:
 
-		if not retrieve_result.success:
+				# check job status
+				retrieve_result = metadata_client.service.checkRetrieveStatus(retrieve_job.id, True)
 
-			job.status = 'Error'
-			job.json_message = retrieve_result
+				# sleep job for 3 seconds
+				time.sleep(3)
 
-			if 'errorMessage' in retrieve_result:
-				job.error = retrieve_result.errorMessage
+			if not retrieve_result.success:
 
-			if 'messages' in retrieve_result:
-				job.error = retrieve_result.messages[0].problem
+				job.status = 'Error'
+				job.json_message = retrieve_result
 
+				if 'errorMessage' in retrieve_result:
+					job.error = retrieve_result.errorMessage
+
+				if 'messages' in retrieve_result:
+					job.error = retrieve_result.messages[0].problem
+
+			else:
+
+				job.json_message = retrieve_result
+
+				# Save the zip file result to server
+				zip_file = open('metadata.zip', 'w+')
+				zip_file.write(b64decode(retrieve_result.zipFile))
+				zip_file.close()
+
+				# Open zip file
+				metadata = ZipFile('metadata.zip', 'r')
+
+				# Loop through files in the zip file
+				for filename in metadata.namelist():
+
+					try:
+
+						if '-meta.xml' not in filename.split('/')[1]:
+							
+							trigger = ApexTrigger()
+							trigger.job = job
+							trigger.name = filename.split('/')[1][:-8]
+							trigger.content = metadata.read(filename)
+							trigger.save()
+
+						else:
+
+							# Take the previous trigger to assign meta content to
+							trigger = ApexTrigger.objects.all().order_by('-id')[0]
+							trigger.meta_content = metadata.read(filename)
+
+							# Find status of trigger from meta xml
+							for node in ET.fromstring(metadata.read(filename)):
+								if 'status' in node.tag:
+									trigger.active = node.text == 'Active'
+									break
+
+							trigger.save()
+
+					# not in a folder (could be package.xml). Skip record
+					except Exception as error:
+						continue
+
+				# Delete zip file, no need to store
+				os.remove('metadata.zip')
+
+				job.status = 'Finished'
 		else:
-
-			job.json_message = retrieve_result
-
-			# Save the zip file result to server
-			zip_file = open('metadata.zip', 'w+')
-			zip_file.write(b64decode(retrieve_result.zipFile))
-			zip_file.close()
-
-			# Open zip file
-			metadata = ZipFile('metadata.zip', 'r')
-
-			# Loop through files in the zip file
-			for filename in metadata.namelist():
-
-				try:
-
-					if '-meta.xml' not in filename.split('/')[1]:
-						
-						trigger = ApexTrigger()
-						trigger.job = job
-						trigger.name = filename.split('/')[1][:-8]
-						trigger.content = metadata.read(filename)
-						trigger.save()
-
-					else:
-
-						# Take the previous trigger to assign meta content to
-						trigger = ApexTrigger.objects.all().order_by('-id')[0]
-						trigger.meta_content = metadata.read(filename)
-
-						# Find status of trigger from meta xml
-						for node in ET.fromstring(metadata.read(filename)):
-							if 'status' in node.tag:
-								trigger.active = node.text == 'Active'
-								break
-
-						trigger.save()
-
-				# not in a folder (could be package.xml). Skip record
-				except Exception as error:
-					continue
-
-			# Delete zip file, no need to store
-			os.remove('metadata.zip')
 
 			job.status = 'Finished'
 
