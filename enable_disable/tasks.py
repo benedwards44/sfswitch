@@ -12,6 +12,8 @@ import glob
 import datetime
 import time
 import sys
+import traceback
+
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
@@ -315,7 +317,7 @@ def get_metadata(job):
 	except Exception as error:
 		
 		job.status = 'Error'
-		job.error = error
+		job.error = traceback.format_exc()
 
 	job.finished_date = datetime.datetime.now()
 	job.save()
