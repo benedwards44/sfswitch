@@ -66,14 +66,16 @@ def get_metadata(job):
 		# Note: Only 3 metadata types supported
 		for component in metadata_client.service.listMetadata(component_list, settings.SALESFORCE_API_VERSION):
 
-			if component.type == 'ValidationRule':
-				validation_rules.append(component.fullName)
+			if 'fullName' in component:
 
-			if component.type == 'WorkflowRule':
-				workflows.append(component.fullName)
+				if component.type == 'ValidationRule':
+					validation_rules.append(component.fullName)
 
-			if component.type == 'ApexTrigger':
-				triggers.append(component.fullName)
+				if component.type == 'WorkflowRule':
+					workflows.append(component.fullName)
+
+				if component.type == 'ApexTrigger':
+					triggers.append(component.fullName)
 
 		# Logic to query for details for each type of metadata.
 		# Note: Only 10 components are supported per query, so the list and counter are used to ensure that is met.
