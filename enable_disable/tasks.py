@@ -66,7 +66,7 @@ def get_metadata(job):
 		# Note: Only 3 metadata types supported
 		for component in metadata_client.service.listMetadata(component_list, settings.SALESFORCE_API_VERSION):
 
-			if 'fullName' in component:
+			if component:
 
 				if component.type == 'ValidationRule':
 					validation_rules.append(component.fullName)
@@ -91,26 +91,28 @@ def get_metadata(job):
 
 				for component in metadata_client.service.readMetadata('ValidationRule', query_list)[0]:
 
-					val_rule = ValidationRule()
-					val_rule.job = job
-					val_rule.object_name = component.fullName.split('.')[0]
-					val_rule.name = component.fullName.split('.')[1]
-					val_rule.fullName = component.fullName
-					val_rule.active = component.active
+					if component:
 
-					if 'description' in component:
-						val_rule.description = component.description.encode('ascii', 'replace')
+						val_rule = ValidationRule()
+						val_rule.job = job
+						val_rule.object_name = component.fullName.split('.')[0]
+						val_rule.name = component.fullName.split('.')[1]
+						val_rule.fullName = component.fullName
+						val_rule.active = component.active
 
-					if 'errorConditionFormula' in component:
-						val_rule.errorConditionFormula = component.errorConditionFormula.encode('ascii', 'replace')
+						if 'description' in component:
+							val_rule.description = component.description.encode('ascii', 'replace')
 
-					if 'errorDisplayField' in component:
-						val_rule.errorDisplayField = component.errorDisplayField.encode('ascii', 'replace')
+						if 'errorConditionFormula' in component:
+							val_rule.errorConditionFormula = component.errorConditionFormula.encode('ascii', 'replace')
 
-					if 'errorMessage' in component:
-						val_rule.errorMessage = component.errorMessage.encode('ascii', 'replace')
+						if 'errorDisplayField' in component:
+							val_rule.errorDisplayField = component.errorDisplayField.encode('ascii', 'replace')
 
-					val_rule.save()
+						if 'errorMessage' in component:
+							val_rule.errorMessage = component.errorMessage.encode('ascii', 'replace')
+
+						val_rule.save()
 
 				query_list = []
 
@@ -127,56 +129,58 @@ def get_metadata(job):
 
 				for component in metadata_client.service.readMetadata('WorkflowRule', query_list)[0]:
 
-					wflow_rule = WorkflowRule()
-					wflow_rule.job = job
-					wflow_rule.object_name = component.fullName.split('.')[0]
-					wflow_rule.name = component.fullName.split('.')[1]
-					wflow_rule.fullName = component.fullName
-					wflow_rule.active = component.active
+					if component:
 
-					if 'actions' in component:
-						actions = ''
-						for action in component.actions:
-							actions += '- ' + action.type + ': ' + action.name + '\n'
-						wflow_rule.actions = actions.rstrip()
+						wflow_rule = WorkflowRule()
+						wflow_rule.job = job
+						wflow_rule.object_name = component.fullName.split('.')[0]
+						wflow_rule.name = component.fullName.split('.')[1]
+						wflow_rule.fullName = component.fullName
+						wflow_rule.active = component.active
 
-					if 'booleanFilter' in component:
-						wflow_rule.booleanFilter = component.booleanFilter.encode('ascii', 'replace')
+						if 'actions' in component:
+							actions = ''
+							for action in component.actions:
+								actions += '- ' + action.type + ': ' + action.name + '\n'
+							wflow_rule.actions = actions.rstrip()
 
-					if 'criteriaItems' in component:
-						criteria_items = ''
-						for criteriaItem in component.criteriaItems:
-							criteria_items += '- ' + criteriaItem.field.split('.')[1] + ' ' + criteriaItem.operation + ' '
-							if 'value' in criteriaItem:
-								if criteriaItem.value:
-									criteria_items += criteriaItem.value
-							elif 'valueField' in criteriaItem:
-								if criteriaItem.valueField:
-									criteria_items += criteriaItem.valueField
-							criteria_items += '\n'
+						if 'booleanFilter' in component:
+							wflow_rule.booleanFilter = component.booleanFilter.encode('ascii', 'replace')
 
-						wflow_rule.criteriaItems = criteria_items.rstrip()
+						if 'criteriaItems' in component:
+							criteria_items = ''
+							for criteriaItem in component.criteriaItems:
+								criteria_items += '- ' + criteriaItem.field.split('.')[1] + ' ' + criteriaItem.operation + ' '
+								if 'value' in criteriaItem:
+									if criteriaItem.value:
+										criteria_items += criteriaItem.value
+								elif 'valueField' in criteriaItem:
+									if criteriaItem.valueField:
+										criteria_items += criteriaItem.valueField
+								criteria_items += '\n'
 
-					if 'description' in component:
-						wflow_rule.description = component.description.encode('ascii', 'replace')
+							wflow_rule.criteriaItems = criteria_items.rstrip()
 
-					if 'formula' in component:
-						wflow_rule.formula = component.formula.encode('ascii', 'replace')
+						if 'description' in component:
+							wflow_rule.description = component.description.encode('ascii', 'replace')
 
-					if 'triggerType' in component:
-						wflow_rule.triggerType = component.triggerType.encode('ascii', 'replace')
+						if 'formula' in component:
+							wflow_rule.formula = component.formula.encode('ascii', 'replace')
 
-					if 'workflowTimeTriggers' in component:
-						time_triggers = ''
-						for time_trigger in component.workflowTimeTriggers:
-							time_triggers += '- ' + time_trigger.timeLength + ' ' + time_trigger.workflowTimeTriggerUnit + ':\n'
-							if 'actions' in time_trigger:
-								for action in time_trigger.actions:
-									time_triggers += '---- ' + action.type + ': ' + action.name + '\n'
-							time_triggers += '\n'
-						wflow_rule.workflowTimeTriggers = time_triggers.rstrip()
+						if 'triggerType' in component:
+							wflow_rule.triggerType = component.triggerType.encode('ascii', 'replace')
 
-					wflow_rule.save()
+						if 'workflowTimeTriggers' in component:
+							time_triggers = ''
+							for time_trigger in component.workflowTimeTriggers:
+								time_triggers += '- ' + time_trigger.timeLength + ' ' + time_trigger.workflowTimeTriggerUnit + ':\n'
+								if 'actions' in time_trigger:
+									for action in time_trigger.actions:
+										time_triggers += '---- ' + action.type + ': ' + action.name + '\n'
+								time_triggers += '\n'
+							wflow_rule.workflowTimeTriggers = time_triggers.rstrip()
+
+						wflow_rule.save()
 
 				query_list = []
 
@@ -199,22 +203,24 @@ def get_metadata(job):
 
 			for component in flows_query.json()['records']:
 
-				flow = Flow()
-				flow.job = job
-				flow.name = component['FullName']
-				flow.flow_id = component['Id']
-				flow.active = False
+				if component:
 
-				if 'LatestVersion' in component and component['LatestVersion']:
-					flow.latest_version = component['LatestVersion']['VersionNumber']
-				else:
-					flow.latest_version = 1
+					flow = Flow()
+					flow.job = job
+					flow.name = component['FullName']
+					flow.flow_id = component['Id']
+					flow.active = False
 
-				if 'ActiveVersion' in component and component['ActiveVersion']:
-					flow.active_version = component['ActiveVersion']['VersionNumber']
-					flow.active = True
+					if 'LatestVersion' in component and component['LatestVersion']:
+						flow.latest_version = component['LatestVersion']['VersionNumber']
+					else:
+						flow.latest_version = 1
 
-				flow.save()
+					if 'ActiveVersion' in component and component['ActiveVersion']:
+						flow.active_version = component['ActiveVersion']['VersionNumber']
+						flow.active = True
+
+					flow.save()
 
 		if triggers:
 
