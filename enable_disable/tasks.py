@@ -32,7 +32,7 @@ def get_metadata(job):
 	try:
 
 		# instantiate the metadata WSDL
-		metadata_client = Client('http://sfswitch.herokuapp.com/static/metadata-34.xml')
+		metadata_client = Client('http://sfswitch.herokuapp.com/static/metadata-' + str(settings.SALESFORCE_API_VERSION) + '.xml')
 
 		# URL for metadata API
 		metadata_url = job.instance_url + '/services/Soap/m/' + str(settings.SALESFORCE_API_VERSION) + '.0/' + job.org_id
