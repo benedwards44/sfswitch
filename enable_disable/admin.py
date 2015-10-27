@@ -45,7 +45,7 @@ class DeployJobComponentInline(admin.TabularInline):
 	ADMIN CLASSES
 """
 class JobAdmin(admin.ModelAdmin):
-    list_display = ('created_date','finished_date','status','error')
+    list_display = ('created_date','finished_date','username','status','error')
     ordering = ['-created_date']
     inlines = [ValidationRuleInline, WorkflowRuleInline, ApexTriggerInline, FlowInline, DeployJobInline]
 

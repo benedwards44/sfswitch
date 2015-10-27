@@ -148,9 +148,11 @@ def get_metadata(job):
 						for criteriaItem in component.criteriaItems:
 							criteria_items += '- ' + criteriaItem.field.split('.')[1] + ' ' + criteriaItem.operation + ' '
 							if 'value' in criteriaItem:
-								criteria_items += criteriaItem.value
+								if criteriaItem.value:
+									criteria_items += criteriaItem.value
 							elif 'valueField' in criteriaItem:
-								criteria_items += criteriaItem.valueField
+								if criteriaItem.valueField:
+									criteria_items += criteriaItem.valueField
 							criteria_items += '\n'
 
 						wflow_rule.criteriaItems = criteria_items.rstrip()
