@@ -1,5 +1,6 @@
 from django.contrib import admin
 from enable_disable.models import Job, ValidationRule, WorkflowRule, ApexTrigger, Flow, DeployJob, DeployJobComponent
+from import_export.admin import ImportExportModelAdmin
 
 """
 	INLINES/RELATED LISTS 
@@ -55,5 +56,11 @@ class DeployJobAdmin(admin.ModelAdmin):
 	inlines = [DeployJobComponentInline]
 
 
+class ValidationRuleAdmin(ImportExportModelAdmin):
+    resource_class = ValidationRule
+    pass
+
+
 admin.site.register(Job, JobAdmin)
 admin.site.register(DeployJob, DeployJobAdmin)
+admin.site.register(ValidationRule, ValidationRuleAdmin)
