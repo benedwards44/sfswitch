@@ -454,6 +454,10 @@ def deploy_metadata(deploy_job):
 
 		elif deploy_job.metadata_type == 'trigger':
 
+			# Remove path if exists
+			if os.path.exists("triggers"):
+				os.rmdir('triggers')
+
 			# Create triggers directory
 			os.mkdir('triggers')
 
