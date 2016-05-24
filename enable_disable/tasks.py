@@ -243,6 +243,7 @@ def get_metadata(job):
 			package_to_retrieve = metadata_client.factory.create('Package')
 			package_to_retrieve.apiAccessLevel = None
 			package_to_retrieve.types = trigger_retrieve_list
+			package_to_retrieve.version = str(settings.SALESFORCE_API_VERSION)
 
 			# Add retrieve package to the retrieve request
 			retrieve_request.unpackaged = package_to_retrieve
