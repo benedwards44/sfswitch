@@ -243,7 +243,7 @@ def get_metadata(job):
 			package_to_retrieve = metadata_client.factory.create('Package')
 			package_to_retrieve.apiAccessLevel = None
 			package_to_retrieve.types = trigger_retrieve_list
-			package_to_retrieve.packageType = None
+			package_to_retrieve.packageType = None # This stupid line of code took me ages to work out!
 
 			# Add retrieve package to the retrieve request
 			retrieve_request.unpackaged = package_to_retrieve
@@ -508,7 +508,9 @@ def deploy_metadata(deploy_job):
 			deploy_options.performRetrieve = False
 			deploy_options.purgeOnDelete = False
 			deploy_options.rollbackOnError = True
-			deploy_options.runAllTests = False
+			#deploy_options.runAllTests = False
+			# Set the tests to run if production or sandbox
+			deploy_options.testLevel = 'NoTestRun' if deploy_job.job.is_sandbox else 'RunLocalTests'
 			deploy_options.runTests = None
 			deploy_options.singlePackage = True
 

@@ -10,6 +10,7 @@ class Job(models.Model):
 	access_token = models.CharField(max_length=255, blank=True, null=True)
 	instance_url = models.CharField(max_length=255, blank=True, null=True)
 	json_message = models.TextField(blank=True, null=True)
+	is_sandbox = models.BooleanField(default=False)
 	status = models.CharField(max_length=255, blank=True, null=True)
 	error = models.TextField(blank=True, null=True)
 

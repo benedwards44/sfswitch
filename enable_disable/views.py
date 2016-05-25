@@ -113,6 +113,7 @@ def oauth_response(request):
 				job.org_name = org_name
 				job.instance_url = instance_url
 				job.access_token = access_token
+				job.is_sandbox = 'Production' in environment
 				job.save()
 
 				# Start downloading metadata using async task
