@@ -341,7 +341,7 @@ def deploy_metadata(deploy_job):
 	deploy_job.save()
 
 	# Set up metadata API connection
-	metadata_client = Client('http://sfswitch.herokuapp.com/static/metadata-34.xml')
+	metadata_client = Client('http://sfswitch.herokuapp.com/static/metadata-' + str(settings.SALESFORCE_API_VERSION) + '.xml')
 	metadata_url = deploy_job.job.instance_url + '/services/Soap/m/' + str(settings.SALESFORCE_API_VERSION) + '.0/' + deploy_job.job.org_id
 	metadata_client.set_options(location = metadata_url)
 	session_header = metadata_client.factory.create("SessionHeader")
