@@ -190,7 +190,7 @@ def get_metadata(job):
 		# Note: Using the Tooling REST API, as the Metadata API didn't return the stuff I needed
 		# And the Tooling SOAP API I couldn't get working
 		request_url = job.instance_url + '/services/data/v' + str(settings.SALESFORCE_API_VERSION) + '.0/tooling/'
-		request_url += 'query/?q=Select+Id,ActiveVersion.VersionNumber,LatestVersion.VersionNumber,FullName+From+FlowDefinition'
+		request_url += 'query/?q=Select+Id,ActiveVersion.VersionNumber,LatestVersion.VersionNumber,DeveloperName+From+FlowDefinition'
 		headers = { 
 			'Accept': 'application/json',
 			'X-PrettyPrint': 1,
@@ -207,7 +207,7 @@ def get_metadata(job):
 
 					flow = Flow()
 					flow.job = job
-					flow.name = component['FullName']
+					flow.name = component['DeveloperName']
 					flow.flow_id = component['Id']
 					flow.active = False
 
