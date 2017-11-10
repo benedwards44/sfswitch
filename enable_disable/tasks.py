@@ -456,8 +456,7 @@ def deploy_metadata(deploy_job):
 		elif deploy_job.metadata_type == 'trigger':
 
 			# Remove path if exists
-			if os.path.exists("triggers"):
-				os.rmdir('triggers')
+			remove_triggers()
 
 			# Create triggers directory
 			os.mkdir('triggers')
@@ -562,10 +561,7 @@ def deploy_metadata(deploy_job):
 				deploy_job.status = 'Finished'
 
 			# Remove files
-			for f in glob.glob('triggers/*'):
-				os.remove(f)
-			if os.path.exists('triggers'):
-				os.rmdir('triggers')
+			remove_triggers()
 			os.remove('package.xml')
 			os.remove('deploy.zip')
 
@@ -576,3 +572,14 @@ def deploy_metadata(deploy_job):
 
 	deploy_job.save()
 	
+
+def remove_triggers():
+    """
+    Remove the trigger files and folders if exists
+    """ 
+    # Remove files
+    for f in glob.glob('triggers/*'):
+        os.remove(f)
+    if os.path.exists('triggers'):
+        os.rmdir('triggers')
+        
