@@ -564,7 +564,8 @@ def deploy_metadata(deploy_job):
 			# Remove files
 			for f in glob.glob('triggers/*'):
 				os.remove(f)
-			os.rmdir('triggers')
+			if os.path.exists('triggers'):
+				os.rmdir('triggers')
 			os.remove('package.xml')
 			os.remove('deploy.zip')
 
