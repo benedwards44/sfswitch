@@ -66,7 +66,7 @@ def get_metadata(job):
 		# Note: Only 3 metadata types supported
 		for component in metadata_client.service.listMetadata(component_list, settings.SALESFORCE_API_VERSION):
 
-			if component:
+			if component and component.fullName:
 
 				if component.type == 'ValidationRule':
 					validation_rules.append(component.fullName)
