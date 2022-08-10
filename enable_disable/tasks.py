@@ -19,7 +19,7 @@ sys.setdefaultencoding("utf-8")
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sfswitch.settings')
 
-app = Celery('tasks', broker=os.environ.get('REDISTOGO_URL', 'redis://localhost'))
+app = Celery('tasks', broker=os.environ.get('REDIS_URL', 'redis://localhost'))
 
 from enable_disable.models import Job, ValidationRule, WorkflowRule, ApexTrigger, Flow, DeployJob, DeployJobComponent
 
