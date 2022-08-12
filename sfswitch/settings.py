@@ -36,21 +36,34 @@ INSTALLED_APPS = (
     'enable_disable',
 )
 
-MIDDLEWARE_CLASSES = (
-    'sslify.middleware.SSLifyMiddleware',
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    #'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
 
-# Add in request context processor
-from django.conf import global_settings
-TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
-    'django.core.context_processors.request',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(os.path.dirname(__file__), "templates")],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+            'debug': DEBUG,
+        },
+    },
+]
+
 
 ROOT_URLCONF = 'sfswitch.urls'
 
@@ -76,19 +89,12 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-TEMPLATE_DIRS = (
-    os.path.join(os.path.dirname(__file__), "templates"),
-)
-
-STATIC_ROOT = 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
-ADMIN_MEDIA_PREFIX = '/static/admin/'
-
 STATICFILES_DIRS = (
     os.path.join(PROJECT_PATH, 'static'),
 )
-
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 SALESFORCE_CONSUMER_KEY = os.environ['SALESFORCE_CONSUMER_KEY']
 SALESFORCE_CONSUMER_SECRET = os.environ['SALESFORCE_CONSUMER_SECRET']

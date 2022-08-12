@@ -1,6 +1,6 @@
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.template import RequestContext
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from enable_disable.models import Job, ValidationRule, WorkflowRule, ApexTrigger, Flow, DeployJob, DeployJobComponent
 from enable_disable.forms import LoginForm
@@ -36,7 +36,8 @@ def index(request):
 	else:
 		login_form = LoginForm()
 
-	return render_to_response('index.html', RequestContext(request,{'login_form': login_form}))
+	return render(request, 'index.html', {'login_form': login_form })
+
 
 def oauth_response(request):
 
@@ -117,18 +118,28 @@ def oauth_response(request):
 				job.save()
 
 				# Start downloading metadata using async task
-				get_metadata.delay(job)
+				get_metadata.delay(job.id)
 
 				return HttpResponseRedirect('/loading/' + str(job.random_id))
 
-	return render_to_response('oauth_response.html', RequestContext(request,{'error': error_exists, 'error_message': error_message, 'username': username, 'org_name': org_name, 'login_form': login_form}))
+	return render(
+        request, 
+        'oauth_response.html', 
+        {
+            'error': error_exists, 
+            'error_message': error_message, 
+            'username': username, 
+            'org_name': org_name, 
+            'login_form': login_form
+		}
+	)
 
 def logout(request):
 
 	# Determine logout url based on environment
 	instance_prefix = request.GET.get('instance_prefix')
 		
-	return render_to_response('logout.html', RequestContext(request, {'instance_prefix': instance_prefix}))
+	return render(request, 'logout.html', { 'instance_prefix': instance_prefix })
 
 # AJAX endpoint for page to constantly check if job is finished
 def job_status(request, job_id):
@@ -140,7 +151,7 @@ def job_status(request, job_id):
 		'error': job.error
 	}
 
-	return HttpResponse(json.dumps(response_data), content_type = 'application/json')
+	return JsonResponse(response_data)
 
 # Page for user to wait for job to run
 def loading(request, job_id):
@@ -160,7 +171,7 @@ def loading(request, job_id):
 
 	else:
 		
-		return render_to_response('loading.html', RequestContext(request, {'job': job}))	
+		return render(request, 'loading.html', { 'job': job })
 
 def job(request, job_id):
 	"""
@@ -189,7 +200,7 @@ def job(request, job_id):
 	wf_object_names.sort()
 
 
-	return render_to_response('job.html', RequestContext(request, {
+	return render(request, 'job.html', {
 		'job': job, 
 		'val_object_names': val_object_names, 
 		'val_rules': job.validation_rules(),
@@ -197,7 +208,9 @@ def job(request, job_id):
 		'wf_rules': job.workflow_rules(),
 		'triggers': job.triggers(),
 		'flows': job.flows()
-	}))
+	})
+
+
 
 def update_metadata(request, job_id, metadata_type):
 
@@ -257,7 +270,7 @@ def check_deploy_status(request, deploy_job_id):
 		'error': deploy_job.error
 	}
 
-	return HttpResponse(json.dumps(response_data), content_type = 'application/json')
+	return JsonResponse(response_data)
 
 
 @csrf_exempt
@@ -305,7 +318,7 @@ def auth_details(request):
 				pass
 
 			# Run job
-			get_metadata.delay(job)
+			get_metadata.delay(job.id)
 
 			# Build response 
 			response_data = {
@@ -323,4 +336,4 @@ def auth_details(request):
 			'error_text': str(error)
 		}
 	
-	return HttpResponse(json.dumps(response_data), content_type = 'application/json')
+	return JsonResponse(response_data)

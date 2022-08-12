@@ -21,10 +21,15 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sfswitch.settings')
 
 app = Celery('tasks', broker=os.environ.get('REDIS_URL', 'redis://localhost'))
 
+import django
+django.setup()
+
 from enable_disable.models import Job, ValidationRule, WorkflowRule, ApexTrigger, Flow, DeployJob, DeployJobComponent
 
 @app.task
-def get_metadata(job): 
+def get_metadata(job_id): 
+
+	job = Job.objects.get(pk=job_id)
 	
 	job.status = 'Downloading Metadata'
 	job.save()
@@ -335,7 +340,9 @@ def get_metadata(job):
 
 
 @app.task
-def deploy_metadata(deploy_job): 
+def deploy_metadata(job_id): 
+
+	deploy_job = DeployJob.objects.get(pk=job_id)
 
 	deploy_job.status = 'Deploying'
 	deploy_job.save()
