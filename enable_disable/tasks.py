@@ -340,9 +340,9 @@ def get_metadata(job_id):
 
 
 @app.task
-def deploy_metadata(job_id): 
+def deploy_metadata(deploy_job_id): 
 
-	deploy_job = DeployJob.objects.get(pk=job_id)
+	deploy_job = DeployJob.objects.get(pk=deploy_job_id)
 
 	deploy_job.status = 'Deploying'
 	deploy_job.save()

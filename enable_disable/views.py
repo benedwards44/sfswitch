@@ -250,7 +250,7 @@ def update_metadata(request, job_id, metadata_type):
 			deploy_job_component.enable = component['enable']
 			deploy_job_component.save()
 
-		deploy_metadata.delay(deploy_job)
+		deploy_metadata.delay(deploy_job.id)
 
 	except Exception as error:
 
