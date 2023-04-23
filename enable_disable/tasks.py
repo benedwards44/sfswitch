@@ -280,12 +280,12 @@ def get_metadata(job_id):
 				job.json_message = retrieve_result
 
 				# Save the zip file result to server
-				#zip_file = open('metadata.zip', 'wb')
-				#zip_file.write(b64decode(retrieve_result.zipFile).decode('utf-8'))
-				#zip_file.close()
+				zip_file = open('metadata.zip', 'wb')
+				zip_file.write(str(b64decode(retrieve_result.zipFile)))
+				zip_file.close()
 
 				# Open zip file
-				metadata = ZipFile(b64decode(retrieve_result.zipFile), 'r')
+				metadata = ZipFile('metadata.zip', 'r')
 
 				# Loop through files in the zip file
 				for filename in metadata.namelist():
