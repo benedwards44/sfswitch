@@ -281,7 +281,7 @@ def get_metadata(job_id):
 
 				# Save the zip file result to server
 				zip_file = open('metadata.zip', 'wb')
-				zip_file.write(str(b64decode(retrieve_result.zipFile)))
+				zip_file.write(b64decode(retrieve_result.zipFile))
 				zip_file.close()
 
 				# Open zip file
