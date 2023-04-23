@@ -194,7 +194,7 @@ def get_metadata(job_id):
 		request_url += 'query/?q=Select+Id,ActiveVersion.VersionNumber,LatestVersion.VersionNumber,DeveloperName+From+FlowDefinition'
 		headers = { 
 			'Accept': 'application/json',
-			'X-PrettyPrint': 1,
+			'X-PrettyPrint': '1',
 			'Authorization': 'Bearer ' + job.access_token
 		}
 
@@ -420,7 +420,7 @@ def deploy_metadata(deploy_job_id):
 			request_url = deploy_job.job.instance_url + '/services/data/v' + str(settings.SALESFORCE_API_VERSION) + '.0/tooling/sobjects/FlowDefinition/'
 			headers = { 
 				'Accept': 'application/json',
-				'X-PrettyPrint': 1,
+				'X-PrettyPrint': '1',
 				'Authorization': 'Bearer ' + deploy_job.job.access_token,
 				'Content-Type': 'application/json'
 			}
