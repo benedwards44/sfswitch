@@ -12,9 +12,8 @@ import json
 import requests
 import datetime
 from time import sleep
-import sys
-reload(sys)
-sys.setdefaultencoding("utf-8")
+
+
 
 def index(request):
 	

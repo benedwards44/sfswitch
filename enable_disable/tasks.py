@@ -14,11 +14,7 @@ import time
 import sys
 import traceback
 
-reload(sys)
-sys.setdefaultencoding("utf-8")
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sfswitch.settings')
-
 app = Celery('tasks', broker=os.environ.get('REDIS_URL', 'redis://localhost'))
 
 import django
