@@ -280,7 +280,7 @@ def get_metadata(job_id):
 				job.json_message = retrieve_result
 
 				# Save the zip file result to server
-				zip_file = open('metadata.zip', 'w+', 'utf-8')
+				zip_file = open('metadata.zip', 'wb')
 				zip_file.write(b64decode(retrieve_result.zipFile).decode('utf-8'))
 				zip_file.close()
 
@@ -468,13 +468,13 @@ def deploy_metadata(deploy_job_id):
 		
 			for deploy_component in deploy_components:
 
-				trigger_file = open('triggers/' + deploy_component.trigger.name + '.trigger','w+')
+				trigger_file = open('triggers/' + deploy_component.trigger.name + '.trigger','wb')
 				trigger_file.write(deploy_component.trigger.content)
 				trigger_file.close()
 
 				zip_file.write('triggers/' + deploy_component.trigger.name + '.trigger')
 
-				trigger_meta_file = open('triggers/' + deploy_component.trigger.name + '.trigger-meta.xml','w+')
+				trigger_meta_file = open('triggers/' + deploy_component.trigger.name + '.trigger-meta.xml','wb')
 				meta_content = deploy_component.trigger.meta_content
 				if deploy_component.enable:
 					meta_content = meta_content.replace('<status>Inactive</status>', '<status>Active</status>')
@@ -486,7 +486,7 @@ def deploy_metadata(deploy_job_id):
 				zip_file.write('triggers/' + deploy_component.trigger.name + '.trigger-meta.xml')
 
 			# Create package.xml
-			package_xml = open('package.xml','w+')
+			package_xml = open('package.xml','wb')
 			package_xml.write('<?xml version="1.0" encoding="UTF-8"?>\n')
 			package_xml.write('<Package xmlns="http://soap.sforce.com/2006/04/metadata">\n')
 			package_xml.write('    <types>\n        <members>*</members>\n        <name>ApexTrigger</name>\n    </types>\n')
