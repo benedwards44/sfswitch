@@ -26,7 +26,7 @@ def get_metadata(job_id):
 	try:
 
 		# instantiate the metadata WSDL
-		metadata_client = Client('http://sfswitch.herokuapp.com/static/metadata-' + str(settings.SALESFORCE_API_VERSION) + '.xml')
+		metadata_client = Client('http://sfswitch.cloudtoolkit.co/static/metadata.wsdl.xml')
 
 		# URL for metadata API
 		metadata_url = job.instance_url + '/services/Soap/m/' + str(settings.SALESFORCE_API_VERSION) + '.0/' + job.org_id
@@ -337,7 +337,7 @@ def deploy_metadata(deploy_job_id):
 	deploy_job.save()
 
 	# Set up metadata API connection
-	metadata_client = Client('http://sfswitch.herokuapp.com/static/metadata-' + str(settings.SALESFORCE_API_VERSION) + '.xml')
+	metadata_client = Client('http://sfswitch.cloudtoolkit.co/static/metadata.wsdl.xml')
 	metadata_url = deploy_job.job.instance_url + '/services/Soap/m/' + str(settings.SALESFORCE_API_VERSION) + '.0/' + deploy_job.job.org_id
 	metadata_client.set_options(location = metadata_url)
 	session_header = metadata_client.factory.create("SessionHeader")
