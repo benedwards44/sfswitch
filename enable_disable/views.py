@@ -1,17 +1,14 @@
 from django.shortcuts import render, get_object_or_404
-from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from enable_disable.models import Job, ValidationRule, WorkflowRule, ApexTrigger, Flow, DeployJob, DeployJobComponent
 from enable_disable.forms import LoginForm
 from django.conf import settings
 from enable_disable.tasks import get_metadata, deploy_metadata
-from suds.client import Client
 import uuid
 import json	
 import requests
-import datetime
-from time import sleep
+from django.utils import timezone
 
 
 
@@ -106,7 +103,7 @@ def oauth_response(request):
 
 				job = Job()
 				job.random_id = uuid.uuid4()
-				job.created_date = datetime.datetime.now()
+				job.created_date = timezone.now()
 				job.status = 'Not Started'
 				job.username = username
 				job.org_id = org_id
@@ -297,7 +294,7 @@ def auth_details(request):
 			# create the package record to store results
 			job = Job()
 			job.random_id = uuid.uuid4()
-			job.created_date = datetime.datetime.now()
+			job.created_date = timezone.now()
 			job.status = 'Not Started'
 			job.org_id = request_data['org_id']
 			job.instance_url = request_data['instance_url']

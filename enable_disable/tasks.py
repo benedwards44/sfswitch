@@ -9,11 +9,11 @@ import json
 import xml.etree.ElementTree as ET
 import os
 import glob
-import datetime
 import time
 import traceback
 from celery import shared_task
 from enable_disable.models import Job, ValidationRule, WorkflowRule, ApexTrigger, Flow, DeployJob, DeployJobComponent
+from django.utils import timezone
 
 @shared_task
 def get_metadata(job_id): 
@@ -324,7 +324,7 @@ def get_metadata(job_id):
 		job.status = 'Error'
 		job.error = traceback.format_exc()
 
-	job.finished_date = datetime.datetime.now()
+	job.finished_date = timezone.now()
 	job.save()
 
 
