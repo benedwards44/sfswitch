@@ -11,18 +11,11 @@ import os
 import glob
 import datetime
 import time
-import sys
 import traceback
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sfswitch.settings')
-app = Celery('tasks', broker=os.environ.get('REDIS_URL', 'redis://localhost'))
-
-import django
-django.setup()
-
+from celery import shared_task
 from enable_disable.models import Job, ValidationRule, WorkflowRule, ApexTrigger, Flow, DeployJob, DeployJobComponent
 
-@app.task
+@shared_task
 def get_metadata(job_id): 
 
 	job = Job.objects.get(pk=job_id)
@@ -335,7 +328,7 @@ def get_metadata(job_id):
 	job.save()
 
 
-@app.task
+@shared_task
 def deploy_metadata(deploy_job_id): 
 
 	deploy_job = DeployJob.objects.get(pk=deploy_job_id)
