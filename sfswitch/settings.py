@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'import_export',
     'enable_disable',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -118,6 +119,7 @@ STORAGES = {
 REDIS_URL = env('REDIS_URL')
 CELERY_BROKER_URL = REDIS_URL
 BROKER_POOL_LIMIT = 1
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 
 # Internationalization

@@ -11,6 +11,7 @@ import os
 import glob
 import time
 import traceback
+import datetime
 from celery import shared_task
 from enable_disable.models import Job, ValidationRule, WorkflowRule, ApexTrigger, Flow, DeployJob, DeployJobComponent
 from django.utils import timezone
@@ -578,4 +579,14 @@ def remove_triggers():
         os.remove(f)
     if os.path.exists('triggers'):
         os.rmdir('triggers')
-        
+
+
+@shared_task
+def job_archival():
+	"""
+	Deletes old jobs to keep the database clean
+	"""
+
+	one_day_ago = timezone.now() - datetime.timedelta(hours=24)
+	jobs = Job.objects.filter(created_date__lt=one_day_ago)
+	jobs.delete()
